@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 24px; min-width: 0;">
+  <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Infrastructure</span>
+      <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Gateway</h1>
+      <p style="margin: 0; max-width: 640px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">Where every call is decided and every credential lives. Run it in your own network. Policy comes down from dhvati; secrets never go up.</p>
+    </div>
+    <button type="button" style="padding: 10px 20px; border-radius: 999px; border: 0; background: var(--accFill); color: #fff8ef; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="background: var(--accFillH);">Add a gateway</button>
+  </header>
+
+  <section aria-label="How a call flows" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+    <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">How a call flows</h2>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; padding: 12px 18px; border-radius: 14px; border: 1px dashed var(--line2); font-size: 14px; color: var(--mut);">
+      <span><b style="color: var(--ink); font-weight: 600;">dhvati control plane</b> · console, policy, inventory</span>
+      <span style="flex-grow: 1;"></span>
+      <span style="color: var(--ok); font-weight: 600;">↓ policy &amp; approvals</span>
+      <span>↑ audit metadata only · never secrets</span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px;">
+      <div style="flex: 1 1 200px; min-width: 0; padding: 18px; border-radius: 14px; background: var(--side); display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">Your agents</span>
+        <b style="font-size: 15px; font-weight: 600;">16 autonomous</b><span style="font-size: 13.5px; color: var(--mut);">k8s · aws · gtm, job-search</span>
+        <b style="font-size: 15px; font-weight: 600;">9 employee clients</b><span style="font-size: 13.5px; color: var(--mut);">Claude Code, Claude.ai on laptops</span>
+        <span style="margin-top: auto; padding-top: 6px; font-size: 13px; color: var(--mut);">hold no credentials</span>
+      </div>
+      <div style="display: grid; place-items: center; color: var(--mut); font-size: 20px;" aria-hidden="true">→</div>
+      <div style="flex: 2 1 320px; min-width: 0; padding: 18px; border-radius: 14px; background: var(--accSoft); border: 1px solid var(--acc); display: flex; flex-direction: column; gap: 10px;">
+        <span style="display: flex; justify-content: space-between; gap: 8px;"><span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc);">Gateway · your network</span><span style="padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);">healthy</span></span>
+        <b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 21px;">ec2-gateway <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--mut);">ap-south-1</span></b>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+          <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+            <span style="padding: 10px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); font-size: 13.5px; display: flex; flex-direction: column;"><b style="font-weight: 600;">{{s.t}}</b><span style="color: var(--mut);">{{s.d}}</span></span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: grid; place-items: center; color: var(--mut); font-size: 20px;" aria-hidden="true">→</div>
+      <div style="flex: 1 1 180px; min-width: 0; padding: 18px; border-radius: 14px; background: var(--side); display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">Vendors</span>
+        <b style="font-size: 15px; font-weight: 600;">GitHub</b><b style="font-size: 15px; font-weight: 600;">Slack</b><b style="font-size: 15px; font-weight: 600;">Anthropic</b>
+        <span style="margin-top: auto; padding-top: 6px; font-size: 13px; color: var(--mut);">see only the Gateway</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Gateways" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+    <div style="padding: 18px 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--line);">
+      <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Gateways</h2>
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--mut);">Agent endpoint <span style="padding: 5px 14px; border-radius: 999px; background: var(--side); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--ink);">https://mcp.dhvati.ai</span><button type="button" onClick="{{copy}}" style="padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">{{copyLabel}}</button></span>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 16px 24px; font-size: 13.5px; color: var(--mut);">
+      <span style="display: flex; align-items: center; gap: 10px; flex: 1 1 200px;"><span style="width: 8px; height: 8px; border-radius: 99px; background: var(--ok);"></span><b style="font-size: 15px; font-weight: 600; color: var(--ink);">ec2-gateway</b><span style="padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--track);">self-hosted</span></span>
+      <span>v0.7.0</span><span>enrolled 90d ago</span><span>heartbeat 5s ago</span><span>3 credentials sealed</span>
+      <button type="button" onClick="{{rotate}}" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">{{rotateLabel}}</button>
+    </div>
+  </section>
+
+  <section aria-label="Ways to run it" style="display: flex; flex-direction: column; gap: 12px;">
+    <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Ways to run it</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
+      <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+        <article style="{{m.style}}">
+          <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px;"><b style="font-size: 16px; font-weight: 600;">{{m.t}}</b><span style="{{m.badgeStyle}}">{{m.b}}</span></span>
+          <span style="font-size: 14px; color: var(--mut);">{{m.d}}</span>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { copied: false, rotated: false };
+  renderVals() {
+    const card = on => 'background: var(--card); border: 1px solid ' + (on ? 'var(--acc)' : 'var(--line)') + '; border-radius: 18px; box-shadow: var(--shadow); padding: 20px 22px; display: flex; flex-direction: column; gap: 8px;';
+    const badge = on => 'padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; ' + (on ? 'background: var(--accSoft); color: var(--acc);' : 'background: var(--track); color: var(--mut);');
+    return {
+      steps: [{ t: '1 · Who is calling', d: 'IdP token or agent identity' }, { t: '2 · May they', d: 'Cedar policy, default-deny' }, { t: '3 · Inject credential', d: 'from the vault, never returned' }, { t: '4 · Record', d: 'decision, reason, owner' }],
+      modes: [
+        { t: 'dhvati-hosted', b: 'fastest', d: 'We run it in Mumbai. An isolated vault per org. Live in minutes.', on: false },
+        { t: 'Your cloud or data centre', b: 'sovereign', d: 'A Helm chart in your Kubernetes. Credentials never leave your infrastructure.', on: true },
+        { t: 'Air-gapped', b: 'offline bundle', d: 'Console, policy and gateway together, for networks with no way out.', on: false }
+      ].map(m => ({ ...m, style: card(m.on), badgeStyle: badge(m.on) })),
+      copyLabel: this.state.copied ? 'Copied' : 'Copy', copy: () => this.setState({ copied: true }),
+      rotateLabel: this.state.rotated ? 'Key rotated · just now' : 'Rotate key', rotate: () => this.setState({ rotated: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

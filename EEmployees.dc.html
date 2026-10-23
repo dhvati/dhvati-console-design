@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0;">
+  <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Identity · Employees</span>
+      <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Employees</h1>
+      <p style="margin: 0; max-width: 680px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">Every person an agent can act as. Their IdP role is the ceiling on what any agent acting as them may do, so this is where you see who is delegating, what backs that delegation, and what it reaches today.</p>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 99px; font-size: 13.5px; font-weight: 600; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);"><span style="width: 7px; height: 7px; border-radius: 99px; background: var(--ok);"></span>{{syncLabel}}</span>
+      <button type="button" onClick="{{resync}}" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">↻ Re-sync</button>
+    </div>
+  </header>
+
+  <section aria-label="Delegation summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+    <sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow);">
+        <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500;"><span style="{{s.dot}}"></span>{{s.label}}</span>
+        <span style="display: flex; align-items: baseline; gap: 6px;"><span style="{{s.numStyle}}">{{s.value}}</span><span style="font-size: 15px; color: var(--mut);">{{s.of}}</span></span>
+        <span style="font-size: 13.5px; color: var(--mut);">{{s.note}}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+    <label style="flex: 0 1 300px; display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input aria-label="Search people" value="{{query}}" onInput="{{setQuery}}" placeholder="Search name or email…" style="flex: 1; min-width: 0; padding: 9px 0; border: 0; background: transparent; color: var(--ink); font-size: 14.5px; outline: none;">
+    </label>
+    <sc-for list="{{roleChips}}" as="c" hint-placeholder-count="6"><button type="button" onClick="{{c.pick}}" style="{{c.style}}">{{c.label}} <span style="font-weight: 500; opacity: 0.8;">{{c.n}}</span></button></sc-for>
+    <span style="flex-grow: 1;"></span>
+    <span style="font-size: 14px; color: var(--mut);">Showing <b style="color: var(--ink); font-weight: 600;">{{shownCount}}</b> of 29</span>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13.5px; color: var(--mut);">
+    <span style="display: flex; align-items: center; gap: 8px;"><span style="width: 22px; height: 4px; border-radius: 99px; background: var(--ok);"></span>Live · allowed by role and a connected account backs it</span>
+    <span style="display: flex; align-items: center; gap: 8px;"><span style="width: 22px; height: 4px; border-radius: 99px; background: var(--warn);"></span>Grant · temporary, expires</span>
+    <span style="display: flex; align-items: center; gap: 8px;"><span style="width: 22px; height: 4px; border-radius: 99px; background: var(--line2);"></span>Latent · allowed, but nothing connected, so it fails closed</span>
+  </div>
+
+  <section aria-label="People" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+    <div style="overflow-x: auto;"><div style="min-width: 940px;">
+      <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.5fr) 90px; gap: 16px; padding: 12px 22px; background: var(--side); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">
+        <span>Person</span><span>Role · IdP group</span><span>Acting as them</span><span>Connected accounts</span><span>Live reach</span><span style="text-align: right;">Last call</span>
+      </div>
+      <sc-for list="{{delegating}}" as="p" hint-placeholder-count="2">
+        <div role="button" tabindex="0" onClick="{{p.open}}" style="{{p.rowStyle}}" style-hover="background: var(--accSoft);">
+          <span style="display: flex; align-items: center; gap: 12px; min-width: 0;"><span style="display: grid; place-items: center; width: 38px; height: 38px; border-radius: 99px; background: var(--track); font-size: 12.5px; font-weight: 700; flex-shrink: 0;">{{p.initials}}</span><span style="display: flex; flex-direction: column; min-width: 0;"><b style="font-size: 15.5px; font-weight: 600;">{{p.name}}</b><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--mut);">{{p.email}}</span></span></span>
+          <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;"><span style="padding: 2px 12px; border-radius: 99px; border: 1px solid var(--line2); font-size: 13.5px;">{{p.role}}</span><span style="font-size: 13px; color: var(--mut);">{{p.nActions}} actions</span></span>
+          <span style="display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; align-items: center;"><sc-for list="{{p.stack}}" as="s" hint-placeholder-count="3"><span style="{{s.style}}">{{s.i}}</span></sc-for><span style="margin-left: 8px; font-size: 13px; color: var(--mut);">+1</span></span><span style="font-size: 13px; color: var(--mut);">{{p.clientCount}} clients</span></span>
+          <span><span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);"><span style="width: 6px; height: 6px; border-radius: 99px; background: var(--ok);"></span>Slack</span></span>
+          <span style="display: flex; flex-direction: column; gap: 6px;"><span style="display: flex; height: 6px; border-radius: 99px; background: var(--track); overflow: hidden; max-width: 200px;"><span style="width: 50%; background: var(--ok);"></span></span><span style="font-size: 13px;"><b style="color: var(--ok); font-weight: 600;">2 of 4</b> <span style="color: var(--mut);">live ·</span> <span style="{{p.grantStyle}}">{{p.grantLabel}}</span></span></span>
+          <span style="text-align: right; font-size: 14px; color: var(--mut);">never</span>
+        </div>
+      </sc-for>
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; padding: 12px 22px; border-top: 1px solid var(--line2); background: var(--side);">
+        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;">Not delegating</span>
+        <span style="font-size: 12.5px; font-weight: 600; color: var(--mut);">{{othersCount}}</span>
+        <span style="font-size: 13px; color: var(--mut);">nothing acts as them today, so there is nothing to watch</span>
+      </div>
+      <sc-for list="{{others}}" as="p" hint-placeholder-count="8">
+        <div role="button" tabindex="0" onClick="{{p.open}}" style="{{p.rowStyle}}" style-hover="background: var(--accSoft);">
+          <span style="display: flex; align-items: center; gap: 12px; min-width: 0;"><span style="display: grid; place-items: center; width: 32px; height: 32px; border-radius: 99px; background: var(--track); font-size: 12px; font-weight: 700; flex-shrink: 0;">{{p.initials}}</span><span style="display: flex; flex-direction: column; min-width: 0;"><span style="font-size: 15px;">{{p.name}}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--mut);">{{p.email}}</span></span></span>
+          <span><span style="padding: 2px 12px; border-radius: 99px; border: 1px solid var(--line2); font-size: 13.5px; white-space: nowrap;">{{p.role}}</span></span>
+          <span style="grid-column: span 4; font-size: 14px; color: var(--mut);">{{p.nActions}} actions allowed · nothing connected</span>
+        </div>
+      </sc-for>
+      <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+        <div style="padding: 36px 22px; border-top: 1px solid var(--line); font-size: 14.5px; color: var(--mut);">No one matches this search.</div>
+      </sc-if>
+    </div></div>
+  </section>
+
+  <sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{close}}" style="position: fixed; inset: 0; z-index: 40; background: rgba(28,20,14,0.35); backdrop-filter: blur(6px);"></div>
+    <aside role="dialog" aria-label="Person details" style="position: fixed; top: 0; right: 0; bottom: 0; z-index: 41; width: 620px; max-width: 100vw; display: flex; flex-direction: column; background: var(--card); border-left: 1px solid var(--line2); box-shadow: var(--shadow); color: var(--ink);">
+      <div style="flex-shrink: 0; padding: 22px 26px 18px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line2);">
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <span style="display: grid; place-items: center; width: 50px; height: 50px; border-radius: 99px; background: var(--track); font-size: 15px; font-weight: 700; flex-shrink: 0;">{{sel.initials}}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 26px; line-height: 1.15;">{{sel.name}}</h2><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--mut);">{{sel.email}}</span></span>
+          <button type="button" onClick="{{close}}" aria-label="Close" style="display: grid; place-items: center; width: 34px; height: 34px; border-radius: 99px; border: 0; background: transparent; color: var(--mut); cursor: pointer;" style-hover="background: var(--track); color: var(--ink);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+          <span style="padding: 3px 12px; border-radius: 99px; border: 1px solid var(--line2); font-size: 14px;">{{sel.role}}</span>
+          <span style="padding: 3px 12px; border-radius: 99px; border: 1px solid var(--line2); font-size: 14px; color: var(--mut);">◦ {{sel.backing}}</span>
+          <span style="flex-grow: 1;"></span>
+          <a href="#policies" style="font-size: 14px; font-weight: 600; color: var(--acc); text-decoration: none;">Govern this role →</a>
+        </div>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; padding: 0 26px 24px; display: flex; flex-direction: column;">
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Delegation surface</span>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr) 20px minmax(0, 1fr); align-items: center; gap: 6px;">
+            <div style="padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line2); display: flex; flex-direction: column;"><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">Person</span><b style="font-size: 16px; font-weight: 600;">{{sel.name}}</b><span style="font-size: 13px; color: var(--mut);">{{sel.role}} · {{sel.nActions}} actions</span></div>
+            <span style="text-align: center; color: var(--mut);">→</span>
+            <div style="padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line2); display: flex; flex-direction: column;"><span style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">Clients</span><b style="font-size: 16px; font-weight: 600;">{{sel.clientsBig}}</b><span style="font-size: 13px; color: var(--mut);">{{sel.clientsSub}}</span></div>
+            <span style="{{sel.arrow2Style}}">{{sel.arrow2}}</span>
+            <div style="{{sel.accBox}}"><span style="{{sel.accLabel}}">Accounts</span><b style="{{sel.accBig}}">{{sel.accName}}</b><span style="font-size: 13px; color: var(--mut);">{{sel.accSub}}</span></div>
+          </div>
+          <p style="margin: 0; font-size: 15px; text-wrap: pretty;">{{sel.summary}}</p>
+          <p style="margin: 0; font-size: 13.5px; color: var(--mut); text-wrap: pretty;">Role comes from the IdP group and is read-only here. It is the ceiling: an agent acting as {{sel.name}} can never exceed it.</p>
+        </section>
+
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Clients acting as {{sel.name}} · {{sel.clientCount}}</span>
+          <sc-for list="{{sel.clientList}}" as="c" hint-placeholder-count="4">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line2);">
+              <span style="{{c.av}}">{{c.i}}</span>
+              <span style="display: flex; flex-direction: column; min-width: 0; gap: 2px;">
+                <span style="font-size: 15px;"><b style="font-weight: 600;">{{c.name}}</b> <span style="color: var(--mut);">{{c.version}}</span></span>
+                <span style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12.5px; color: var(--mut);"><span style="font-family: 'JetBrains Mono', monospace;">{{c.token}}</span><span style="padding: 0 8px; border-radius: 99px; border: 1px solid var(--line2); font-size: 11px; font-weight: 600; letter-spacing: 0.06em;">DISCOVERED</span><span>laptop · MCP · {{c.seen}}</span></span>
+              </span>
+            </div>
+          </sc-for>
+          <sc-if value="{{sel.hasClients}}" hint-placeholder-val="{{true}}">
+            <p style="margin: 0; font-size: 13.5px; color: var(--mut); text-wrap: pretty;">Client names are <b style="color: var(--ink); font-weight: 600;">self-reported</b> on sign-in: an identifier, not proof. What is verified is {{sel.name}}'s IdP token, and every call is still checked against their own policy.</p>
+          </sc-if>
+          <sc-if value="{{sel.noClients}}" hint-placeholder-val="{{false}}">
+            <p style="margin: 0; font-size: 14px; color: var(--mut);">No client has ever signed in as {{sel.name}}. Interactive clients register themselves the first time they connect.</p>
+          </sc-if>
+        </section>
+
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Connected accounts · {{sel.accCount}}</span>
+          <sc-if value="{{sel.hasSlack}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line2);">
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);"><span style="width: 6px; height: 6px; border-radius: 99px; background: var(--ok);"></span>Slack</span>
+              <span style="display: flex; flex-direction: column;"><span style="font-size: 15px;">{{sel.name}}</span><span style="font-size: 13px; color: var(--mut);">connected Aug 4 · token held in the vault, never handed to a client</span></span>
+            </div>
+            <p style="margin: 0; font-size: 14px; color: var(--warn); text-wrap: pretty;">▲ GitHub not connected: 2 allowed actions below cannot run. Blocked, not denied: {{sel.name}} is authorized; the org just hasn't connected the account.</p>
+          </sc-if>
+          <sc-if value="{{sel.noSlack}}" hint-placeholder-val="{{false}}">
+            <p style="margin: 0; font-size: 14px; color: var(--mut);">No vendor account connected. Every allowed action fails closed until one is.</p>
+          </sc-if>
+        </section>
+
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Effective access · {{sel.nActions}} actions</span>
+          <sc-for list="{{sel.access}}" as="a" hint-placeholder-count="4">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; padding: 11px 16px; border-radius: 14px; border: 1px solid var(--line2);">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">{{a.id}}</span>
+              <span style="font-size: 13px; color: var(--mut);"><span style="{{a.preStyle}}">{{a.pre}}</span>via role {{sel.role}}<span style="{{a.postStyle}}">{{a.post}}</span></span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 8px;">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Recent activity</span>
+          <span style="font-size: 14px; color: var(--mut);">No calls recorded for {{sel.name}}.</span>
+        </section>
+      </div>
+
+      <div style="flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--line2); background: var(--side);">
+        <a href="#agents" style="padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14.5px; font-weight: 600; text-decoration: none; text-align: center;" style-hover="border-color: var(--mut);">{{sel.leftCta}}</a>
+        <a href="#audit" style="padding: 10px 16px; border-radius: 999px; border: 1px solid var(--acc); background: var(--accSoft); color: var(--acc); font-size: 14.5px; font-weight: 600; text-decoration: none; text-align: center;" style-hover="background: var(--accFill); color: #fff8ef;">View activity →</a>
+      </div>
+    </aside>
+  </sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROLE_OF = { aarav: 'Engineer', aditya: 'Senior Engineer', anita: 'Engineering Manager', arjun: 'Support', carol: 'Contractor', deepa: 'Engineer', dev: 'Contractor', divya: 'Senior Engineer', hari: 'Support', karthik: 'Engineering Manager', kavya: 'Senior Engineer', lakshmi: 'Support', manoj: 'Contractor', meena: 'Engineering Manager', meera: 'Engineer', neha: 'Senior Engineer', nikhil: 'Engineer', pooja: 'Support', priya: 'Engineering Manager', rahul: 'Engineer', ravi: 'Senior Engineer', rohan: 'Senior Engineer', sana: 'Support', sneha: 'Engineering Manager', suresh: 'Contractor', vikram: 'Contractor', qa: 'Engineer' };
+const ACTS = r => r === 'Engineer' ? ['github_list_repos', 'slack_read_messages', 'slack_post_message', 'github_create_issue'] : ['github_list_repos', 'slack_read_messages', 'github_create_issue'];
+class Component extends DCLogic {
+  state = { open: null, role: 'All', query: '', synced: '12:18 AM' };
+  componentDidMount() { this.onKey = e => { if (e.key === 'Escape') this.setState({ open: null }); }; window.addEventListener('keydown', this.onKey); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); }
+  renderVals() {
+    const S = this.state;
+    const av = (i, h, s) => 'display: grid; place-items: center; width: ' + s + 'px; height: ' + s + 'px; border-radius: ' + Math.round(s / 3.2) + 'px; flex-shrink: 0; font-size: ' + (s > 30 ? 13 : 10.5) + 'px; font-weight: 700; background: oklch(0.62 0.09 ' + h + ' / 0.22); color: oklch(0.45 0.1 ' + h + '); border: 1px solid oklch(0.6 0.09 ' + h + ' / 0.35);';
+    const cl = (name, version, token, seen, h) => ({ name, version, token, seen, i: name.replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase(), av: av(0, h, 36) });
+    const del = [
+      { id: 'dave', name: 'dave', email: 'dave@dhi.com', role: 'Engineer', initials: 'D', grant: 'slack_read_messages',
+        clientList: [cl('Anthropic/ClaudeAI', 'v1.0.0', 'agt_dsc_06e460f72aad', 'seen 80d ago', 140), cl('claude-code', 'v2.1.220', 'agt_dsc_3b16de1bc0b9', 'seen 80d ago', 175), cl('claude-ai', 'v0.1.0', 'agt_dsc_4e8c0a9f1673', 'seen 88d ago', 110), cl('Anthropic/Toolbox', 'v1.0.0', 'agt_dsc_8276fd489e77', 'seen 88d ago', 350)] },
+      { id: 'vishwa', name: 'Vishwa Pathi', email: 'vishwa@dhi.com', role: 'Engineer', initials: 'VP', grant: 'slack_post_message',
+        clientList: [cl('claude-code', '', 'agt_dsc_5a1c9e0b3d72', 'seen 80d ago', 310), cl('Anthropic/ClaudeAI', '', 'agt_dsc_c80f3a6e19d4', 'seen 80d ago', 85), cl('claude-ai', '', 'agt_dsc_9e27b4d01f86', 'seen 87d ago', 175), cl('Anthropic/Toolbox', '', 'agt_dsc_1d6a8c5f2e03', 'seen 88d ago', 25)] }
+    ];
+    const oth = Object.keys(ROLE_OF).map(k => ({ id: k, name: k === 'qa' ? 'dhvati QA' : k, email: (k === 'qa' ? 'qa' : k) + '@dhi.com', role: ROLE_OF[k], initials: k[0].toUpperCase(), clientList: [] }));
+    const q = S.query.trim().toLowerCase();
+    const match = p => (S.role === 'All' || p.role === S.role) && (!q || (p.name + ' ' + p.email).toLowerCase().includes(q));
+    const rowBase = 'display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr) minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.5fr) 90px; gap: 16px; align-items: center; cursor: pointer; border-top: 1px solid var(--line); ';
+    const mark = p => S.open === p.id ? 'background: var(--accSoft); box-shadow: inset 3px 0 0 var(--acc);' : '';
+    const delegating = del.filter(match).map(p => ({ ...p, nActions: ACTS(p.role).length, clientCount: p.clientList.length,
+      stack: p.clientList.slice(0, 3).map((c, k) => ({ i: c.i, style: av(0, [140, 175, 110, 310, 85][k], 28).replace('border-radius: 9px', 'border-radius: 8px') + (k ? ' margin-left: -6px;' : '') })),
+      grantLabel: '⏱ grant no expiry', grantStyle: 'color: var(--warn); font-weight: 600;',
+      open: () => this.setState({ open: p.id }), rowStyle: rowBase + 'padding: 16px 22px; ' + mark(p) }));
+    const others = oth.filter(match).map(p => ({ ...p, nActions: ACTS(p.role).length, open: () => this.setState({ open: p.id }), rowStyle: rowBase + 'padding: 12px 22px; ' + mark(p) }));
+    const all = del.concat(oth);
+    const counts = { All: 29 }; all.forEach(p => { counts[p.role] = (counts[p.role] || 0) + 1; });
+    const roleChips = ['All', 'Contractor', 'Engineer', 'Engineering Manager', 'Senior Engineer', 'Support'].map(l => ({
+      label: l, n: counts[l] || 0, pick: () => this.setState({ role: l }),
+      style: 'padding: 7px 14px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; ' + (l === S.role ? 'background: var(--accSoft); color: var(--acc); border: 1px solid var(--acc);' : 'background: var(--card); color: var(--ink); border: 1px solid var(--line2);')
+    }));
+    const num = c => 'font-family: "Marcellus", serif; font-size: 40px; line-height: 1.1; font-variant-numeric: tabular-nums; color: ' + c + ';';
+    const dot = c => 'width: 8px; height: 8px; border-radius: 99px; background: ' + c + ';';
+    const stats = [
+      { label: 'Delegating', value: 2, of: 'of 29', note: '8 clients act as them', dot: dot('var(--ok)'), numStyle: num('var(--ink)') },
+      { label: 'Connected accounts', value: 2, of: 'of 29', note: '2 vendor credentials in the vault', dot: dot('var(--ok)'), numStyle: num('var(--ink)') },
+      { label: 'Temporary grants', value: 2, of: '', note: 'no expiry set', dot: dot('var(--warn)'), numStyle: num('var(--warn)') },
+      { label: 'Needs attention', value: 0, of: '', note: 'clients acting with nothing connected', dot: dot('var(--warn)'), numStyle: num('var(--ink)') }
+    ];
+    const p = all.find(x => x.id === S.open) || del[0];
+    const isDel = p.clientList.length > 0;
+    const acts = ACTS(p.role);
+    const svc = id => id.indexOf('slack') === 0 ? 'Slack' : 'GitHub';
+    const access = acts.map(id => {
+      const live = isDel && svc(id) === 'Slack';
+      return { id, pre: live ? '✓ ' : '', preStyle: 'color: var(--ok); font-weight: 700;', post: live ? (p.grant === id ? ' + grant, no expiry' : '') : ' · ▲ no ' + svc(id) + ' account → blocked', postStyle: live ? 'color: var(--warn);' : 'color: var(--warn); font-weight: 500;' };
+    });
+    const sel = { ...p, nActions: acts.length, clientCount: p.clientList.length, hasClients: isDel, noClients: !isDel, hasSlack: isDel, noSlack: !isDel, accCount: isDel ? 1 : 0,
+      backing: isDel ? 'Partly backed · 2/' + acts.length : 'Not delegating',
+      clientsBig: isDel ? String(p.clientList.length) : 'none', clientsSub: isDel ? p.clientList.length + ' can act' : 'nothing acts as them',
+      arrow2: isDel ? '▲' : '→', arrow2Style: 'text-align: center; color: ' + (isDel ? 'var(--warn)' : 'var(--mut)') + ';',
+      accBox: 'padding: 12px 14px; border-radius: 14px; display: flex; flex-direction: column; ' + (isDel ? 'border: 1px solid var(--warnBd); background: var(--warnBg);' : 'border: 1px solid var(--line2);'),
+      accLabel: 'font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: ' + (isDel ? 'var(--warn)' : 'var(--mut)') + ';',
+      accBig: 'font-size: 16px; font-weight: 600; color: ' + (isDel ? 'var(--warn)' : 'var(--ink)') + ';',
+      accName: isDel ? 'Slack' : 'none', accSub: isDel ? 'GitHub missing' : 'not connected yet',
+      summary: isDel ? p.clientList.length + ' clients can act as ' + p.name + '. Through them, 2 of ' + acts.length + ' allowed actions execute today, using Slack. Compromise this account and that is the reach.' : 'Nothing acts as ' + p.name + ' today. Their role allows ' + acts.length + ' actions; the moment they sign in from a client, that becomes live delegation.',
+      access, leftCta: isDel ? 'Manage clients in Agents →' : 'Agents inventory →' };
+    return {
+      stats, roleChips, delegating, others, othersCount: others.length, shownCount: delegating.length + others.length, empty: !delegating.length && !others.length,
+      query: S.query, setQuery: e => this.setState({ query: e.target.value }),
+      syncLabel: 'Synced from Keycloak · 29 people · ' + S.synced,
+      resync: () => this.setState({ synced: 'just now' }),
+      drawerOpen: !!S.open, sel, close: () => this.setState({ open: null })
+    };
+  }
+}
+</script>
+</body>
+</html>

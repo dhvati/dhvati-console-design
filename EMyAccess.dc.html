@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0; max-width: 1120px;">
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Self-service · dave</span>
+    <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">My access</h1>
+    <p style="margin: 0; max-width: 640px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">What your AI clients can do as you, and how to ask for more. Your role is Engineer, set by your identity provider.</p>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+    <section aria-label="What your agents can do" style="flex: 3 1 460px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+      <div style="padding: 20px 24px 14px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 24px;">What your agents can do</h2>
+        <span style="font-size: 13.5px; color: var(--mut); white-space: nowrap;">{{workingLabel}}</span>
+      </div>
+      <sc-for list="{{actions}}" as="a" hint-placeholder-count="6">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 24px; border-top: 1px solid var(--line);">
+          <span style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px;">{{a.id}}</span><span style="font-size: 13.5px; color: var(--mut);">{{a.why}}</span></span>
+          <span style="{{a.chipStyle}}">{{a.state}}</span>
+          <sc-if value="{{a.canConnect}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{connect}}" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--acc); background: var(--accSoft); color: var(--acc); font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="background: var(--accFill); color: #fff8ef;">Connect GitHub</button></sc-if>
+          <sc-if value="{{a.canRequest}}" hint-placeholder-val="{{false}}"><button type="button" onClick="{{a.request}}" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="border-color: var(--mut);">Request 24h access</button></sc-if>
+        </div>
+      </sc-for>
+    </section>
+
+    <aside style="flex: 2 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+      <section aria-label="Your clients" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+        <h2 style="margin: 0; padding: 20px 22px 12px; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Clients acting as you</h2>
+        <sc-for list="{{clients}}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 12px 22px; border-top: 1px solid var(--line); font-size: 14px;">
+            <span style="flex-grow: 1; display: flex; flex-direction: column;"><b style="font-weight: 600;">{{c.name}}</b><span style="font-size: 12.5px; color: var(--mut);">{{c.seen}}</span></span>
+            <button type="button" onClick="{{c.disconnect}}" style="padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--noBd); color: var(--no);">Disconnect</button>
+          </div>
+        </sc-for>
+        <p style="margin: 0; padding: 14px 22px 18px; border-top: 1px solid var(--line); font-size: 13.5px; color: var(--mut);">Don't recognise one? Disconnect it. It loses access at once and nothing else of yours changes.</p>
+      </section>
+      <section aria-label="Your accounts" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 22px; display: flex; flex-direction: column; gap: 12px;">
+        <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Connected accounts</h2>
+        <span style="display: flex; justify-content: space-between; align-items: center; font-size: 14.5px;"><b style="font-weight: 600;">Slack</b><span style="padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);">connected</span></span>
+        <span style="display: flex; justify-content: space-between; align-items: center; font-size: 14.5px;"><b style="font-weight: 600;">GitHub</b><span style="{{ghChip}}">{{ghLabel}}</span></span>
+        <span style="font-size: 13.5px; color: var(--mut);">Tokens are held by dhvati. Your AI clients never see them.</span>
+      </section>
+    </aside>
+  </div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { requested: {}, github: false, gone: {} };
+  renderVals() {
+    const chip = tone => 'display: inline-flex; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; ' + ({
+      ok: 'background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);',
+      warn: 'background: var(--warnBg); color: var(--warn); border: 1px solid var(--warnBd);',
+      muted: 'background: var(--track); color: var(--mut); border: 1px solid var(--line2);'
+    })[tone];
+    const { requested: req, github: gh, gone } = this.state;
+    const mk = (id, why, state, tone, opts) => ({ id, why, state, chipStyle: chip(tone), canConnect: false, canRequest: false, ...(opts || {}) });
+    const ghAction = id => gh ? mk(id, 'Engineer role · your GitHub account', 'working', 'ok') : mk(id, 'Engineer role · needs your GitHub account', 'allowed, not connected', 'muted', { canConnect: true });
+    const denied = id => req[id]
+      ? mk(id, 'Request sent to your admins · usually answered within the hour', 'pending', 'warn')
+      : mk(id, 'Not in the Engineer role', 'not allowed', 'muted', { canRequest: true, request: () => this.setState({ requested: { ...req, [id]: true } }) });
+    const actions = [
+      mk('slack_read_messages', 'Engineer role · plus your grant, no expiry', 'working', 'ok'),
+      mk('slack_post_message', 'Engineer role', 'working', 'ok'),
+      ghAction('github_list_repos'), ghAction('github_create_issue'),
+      denied('github_create_pr'), denied('github_merge_pr')
+    ];
+    const clients = [
+      { name: 'claude-code v2.1.220', seen: 'Laptop · seen 80d ago' }, { name: 'Anthropic/ClaudeAI v1.0.0', seen: 'Laptop · seen 80d ago' },
+      { name: 'claude-ai v0.1.0', seen: 'Laptop · seen 87d ago' }, { name: 'Anthropic/Toolbox v1.0.0', seen: 'Laptop · seen 88d ago' }
+    ].filter(c => !gone[c.name]).map(c => ({ ...c, disconnect: () => this.setState({ gone: { ...gone, [c.name]: true } }) }));
+    const working = actions.filter(a => a.state === 'working').length;
+    return {
+      actions, clients, workingLabel: working + ' of 4 working',
+      connect: () => this.setState({ github: true }),
+      ghLabel: gh ? 'connected' : 'not connected', ghChip: chip(gh ? 'ok' : 'muted')
+    };
+  }
+}
+</script>
+</body>
+</html>

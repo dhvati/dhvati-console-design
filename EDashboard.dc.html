@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 28px; min-width: 0;">
+  <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Overview</span>
+      <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 46px; line-height: 1.1;">Good afternoon, acme</h1>
+      <p style="margin: 0; max-width: 600px; font-size: 16px; color: var(--mut); text-wrap: pretty;">Every agent call in your organisation, decided in your region. Credentials never leave the vault.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="#audit" style="padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;" style-hover="border-color: var(--mut);">Open audit</a>
+      <a href="#agents" style="padding: 10px 20px; border-radius: 999px; background: var(--accFill); color: #fff8ef; font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;" style-hover="background: var(--accFillH);">Review 3 agents</a>
+    </div>
+  </header>
+
+  <section aria-label="Where enforcement happens" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); border: 1px solid var(--line2); border-radius: 18px; overflow: hidden; background: var(--side);">
+    <sc-for list="{{strip}}" as="s" hint-placeholder-count="4">
+      <div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 2px; border-right: 1px solid var(--line);">
+        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">{{s.k}}</span>
+        <span style="font-size: 16px; font-weight: 600;">{{s.v}}</span>
+        <span style="font-size: 13.5px; color: var(--mut);">{{s.n}}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <section aria-label="Last 24 hours" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+    <sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow);">
+        <span style="font-size: 13.5px; color: var(--mut);">{{s.label}}</span>
+        <span style="{{s.numStyle}}">{{s.value}}</span>
+        <span style="font-size: 13.5px; color: var(--mut);">{{s.note}}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <section style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+    <div style="flex: 3 1 520px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; padding: 20px 24px 14px;">
+        <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 24px;">What needs you</h2>
+        <span style="font-size: 13.5px; color: var(--mut);">{{needsCount}} · nothing was denied</span>
+      </div>
+      <sc-for list="{{needs}}" as="i" hint-placeholder-count="5">
+        <div style="display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--line);">
+          <span style="{{i.tagStyle}}">{{i.tag}}</span>
+          <div style="flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column;">
+            <span style="font-size: 15px; font-weight: 600;">{{i.title}}</span>
+            <span style="font-size: 13.5px; color: var(--mut);">{{i.meta}}</span>
+          </div>
+          <sc-if value="{{i.canExpire}}" hint-placeholder-val="{{true}}">
+            <button type="button" onClick="{{i.expire}}" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="border-color: var(--mut);">Expire in 24h</button>
+          </sc-if>
+          <sc-if value="{{i.grant}}" hint-placeholder-val="{{true}}">
+            <button type="button" onClick="{{i.revoke}}" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--noBd); background: var(--noBg); color: var(--no); font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="background: var(--no); color: #fff8ef;">Revoke</button>
+          </sc-if>
+          <sc-if value="{{i.stalled}}" hint-placeholder-val="{{false}}">
+            <a href="#agents" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--acc); background: var(--accSoft); color: var(--acc); font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap;" style-hover="background: var(--accFill); color: #fff8ef;">Review</a>
+          </sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{toast}}" hint-placeholder-val="{{false}}">
+        <div style="padding: 12px 24px; border-top: 1px solid var(--line); background: var(--okBg); color: var(--ok); font-size: 13.5px; font-weight: 600;">{{toast}}</div>
+      </sc-if>
+    </div>
+    <div style="flex: 2 1 320px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 24px; display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 24px;">Who's acting · 24h</h2>
+        <a href="#agents" style="font-size: 13.5px; font-weight: 600; color: var(--acc); text-decoration: none; white-space: nowrap;">All agents →</a>
+      </div>
+      <sc-for list="{{actors}}" as="a" hint-placeholder-count="6">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between; font-size: 14px;"><span style="font-weight: 600;">{{a.name}} <span style="font-weight: 400; color: var(--mut);">· autonomous</span></span><span style="font-variant-numeric: tabular-nums; color: var(--mut);">{{a.calls}}</span></div>
+          <div style="height: 6px; border-radius: 99px; background: var(--track);"><div style="{{a.bar}}"></div></div>
+        </div>
+      </sc-for>
+      <p style="margin: 0; font-size: 13.5px; color: var(--mut);">All six act on their own identity. None borrows an employee's access.</p>
+    </div>
+  </section>
+
+  <section style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+    <div style="padding: 20px 24px 14px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px;">
+      <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 24px;">Latest decisions</h2>
+      <span style="font-size: 13.5px; color: var(--mut);">identical calls grouped</span>
+    </div>
+    <div style="overflow-x: auto;"><div style="min-width: 860px;">
+      <div style="display: grid; grid-template-columns: 80px 150px 120px 200px 90px minmax(0, 1fr); gap: 14px; padding: 10px 24px; background: var(--side); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">
+        <span>When</span><span>Agent</span><span>Acting for</span><span>Action</span><span>Decision</span><span>Why</span>
+      </div>
+      <sc-for list="{{decisions}}" as="d" hint-placeholder-count="4">
+        <div style="display: grid; grid-template-columns: 80px 150px 120px 200px 90px minmax(0, 1fr); gap: 14px; align-items: center; padding: 13px 24px; border-top: 1px solid var(--line); font-size: 14px;">
+          <span style="color: var(--mut);">{{d.when}}</span>
+          <span style="font-weight: 600;">{{d.agent}} <span style="font-weight: 400; color: var(--mut);">×{{d.count}}</span></span>
+          <span style="color: var(--mut);">{{d.for}}</span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">{{d.action}}</span>
+          <span style="{{d.chip}}">{{d.decision}}</span>
+          <span style="color: var(--mut);">{{d.why}}</span>
+        </div>
+      </sc-for>
+    </div></div>
+  </section>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { revoked: {}, expiring: {}, toast: '' };
+  renderVals() {
+    const { revoked, expiring } = this.state;
+    const strip = [
+      { k: 'Data residency', v: 'India · Mumbai', n: 'Policy, audit and vault in ap-south-1' },
+      { k: 'Enforcement', v: 'ec2-gateway', n: 'Self-hosted · v0.7.0 · 5s ago' },
+      { k: 'Credentials', v: '3 in the vault', n: 'GitHub, Slack, Anthropic · never sent to an agent' },
+      { k: 'Identity', v: 'Keycloak · live', n: '29 people in 5 roles · checked 2s ago' }
+    ];
+    const openGrants = ['dave', 'vishwa'].filter(k => !revoked[k] && !expiring[k]).length;
+    const num = 'font-family: "Marcellus", serif; font-size: 40px; line-height: 1.1; font-variant-numeric: tabular-nums; ';
+    const stats = [
+      { label: 'Governed calls · 24h', value: '2.0k', note: '2.0k allowed · 0 denied · 0 redacted' },
+      { label: 'Agents acting', value: '25', note: '16 autonomous · 9 employee clients' },
+      { label: 'Need attention', value: '3', note: 'Agents stalled, none erroring', hot: true },
+      { label: 'Open-ended grants', value: String(openGrants), note: openGrants ? 'Without an expiry' : 'All grants now expire', hot: openGrants > 0 }
+    ].map(s => ({ ...s, numStyle: num + (s.hot ? 'color: var(--warn);' : '') }));
+    const tag = t => 'flex-shrink: 0; padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; ' + (t === 'warn' ? 'background: var(--warnBg); color: var(--warn); border: 1px solid var(--warnBd);' : 'background: var(--track); color: var(--mut); border: 1px solid var(--line2);');
+    const grants = [
+      { key: 'dave', who: 'dave', verb: 'read Slack messages', tool: 'slack_read_messages', meta: 'granted 94d ago by console, outside the Engineer role' },
+      { key: 'vishwa', who: 'Vishwa Pathi', verb: 'post to Slack', tool: 'slack_post_message', meta: 'granted 80d ago from the in-chat decision card' }
+    ].filter(g => !revoked[g.key]).map(g => ({
+      grant: true, stalled: false, canExpire: !expiring[g.key],
+      tag: expiring[g.key] ? 'expires in 24h' : 'no expiry', tagStyle: tag('warn'),
+      title: g.who + ' can ' + g.verb + (expiring[g.key] ? ' until tomorrow' : ' indefinitely'),
+      meta: g.tool + ' · ' + g.meta,
+      expire: () => this.setState({ expiring: { ...expiring, [g.key]: true }, toast: 'Grant for ' + g.who + ' now expires in 24h · enforced by the Gateway within seconds.' }),
+      revoke: () => this.setState({ revoked: { ...revoked, [g.key]: true }, toast: 'Grant revoked for ' + g.who + ' · enforced by the Gateway within seconds.' })
+    }));
+    const stalled = [
+      { title: 'support-agent has never called', meta: 'Owner dave · connected 77d ago · expected every 5m' },
+      { title: 'jobs-inbox has never called', meta: 'Owner vishwa · connected 62d ago' },
+      { title: 'jobs-tailor went quiet', meta: 'Owner vishwa · nothing for 35d' }
+    ].map(s => ({ ...s, grant: false, canExpire: false, stalled: true, tag: 'stalled', tagStyle: tag('muted') }));
+    const needs = grants.concat(stalled);
+    const actors = [['harvester', 823], ['qualifier', 211], ['investor', 208], ['digest', 204], ['roadmap', 156], ['enricher', 154]].map(([name, calls]) => ({
+      name, calls, bar: 'height: 100%; border-radius: 99px; background: var(--ok); width: ' + Math.max(4, Math.round(calls / 823 * 100)) + '%;'
+    }));
+    const chip = d => 'justify-self: start; padding: 2px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; ' + (d === 'DENY' ? 'background: var(--noBg); color: var(--no); border: 1px solid var(--noBd);' : 'background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);');
+    const decisions = [
+      { when: '4h ago', agent: 'harvester', count: 14, action: 'slack_post_message' },
+      { when: '4h ago', agent: 'qualifier', count: 4, action: 'slack_post_message' },
+      { when: '6h ago', agent: 'investor', count: 4, action: 'slack_post_message' },
+      { when: '7h ago', agent: 'digest', count: 3, action: 'slack_post_message' }
+    ].map(d => ({ ...d, for: 'its own identity', decision: 'ALLOW', why: 'scoped for this action · no delegating human', chip: chip('ALLOW') }));
+    return { strip, stats, needs, needsCount: needs.length + (needs.length === 1 ? ' item' : ' items'), actors, decisions, toast: this.state.toast };
+  }
+}
+</script>
+</body>
+</html>

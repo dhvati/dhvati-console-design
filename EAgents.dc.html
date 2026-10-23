@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0;">
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Identity · Agents</span>
+    <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Agents</h1>
+    <p style="margin: 0; max-width: 660px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">Every AI agent acting in your org: who owns it, where it runs, and exactly what it's allowed to do. Nothing acts until it's enrolled and approved.</p>
+  </header>
+
+  <section aria-label="Agent health" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+    <sc-for list="{{stats}}" as="s" hint-placeholder-count="4">
+      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px 22px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow);">
+        <span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500;"><span style="{{s.dot}}"></span>{{s.label}}</span>
+        <span style="{{s.numStyle}}">{{s.value}}</span>
+        <span style="font-size: 13.5px; color: var(--mut);">{{s.note}}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+    <label style="flex: 1 1 320px; display: flex; align-items: center; gap: 10px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input aria-label="Search agents" value="{{query}}" onInput="{{setQuery}}" placeholder="Search agents, owners, hosts…" style="flex: 1; min-width: 0; padding: 10px 0; border: 0; background: transparent; color: var(--ink); font-size: 14.5px; outline: none;">
+    </label>
+    <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+      <button type="button" onClick="{{f.pick}}" style="{{f.style}}">{{f.label}} <span style="font-variant-numeric: tabular-nums;">{{f.count}}</span></button>
+    </sc-for>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: var(--mut);">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px;">
+      <span style="padding: 1px 10px; border-radius: 99px; border: 1px solid var(--line2); font-size: 12px; font-weight: 600;">discovered</span><span>the client an employee signed in with · self-reported, unverified</span>
+      <span style="color: var(--line2);">·</span>
+      <span style="padding: 1px 10px; border-radius: 99px; border: 1px solid var(--line2); font-size: 12px; font-weight: 600;">registered</span><span>minted here for a token</span>
+      <span style="color: var(--line2);">·</span>
+      <span style="padding: 1px 10px; border-radius: 99px; border: 1px solid var(--acc); background: var(--accSoft); color: var(--acc); font-size: 12px; font-weight: 600;">attested</span><span>cryptographically proved its own runtime identity</span>
+    </div>
+    <p style="margin: 0; max-width: 760px; text-wrap: pretty;">Status comes from the calls dhvati governed, not from an agent's own output. "Calls OK" means nothing we saw failed, not that the work landed.</p>
+  </div>
+
+  <sc-if value="{{hasAttention}}" hint-placeholder-val="{{true}}">
+    <section aria-label="Needs attention" style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; align-items: baseline; gap: 10px;">
+        <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 24px;">Needs attention</h2>
+        <span style="padding: 0 9px; border-radius: 99px; background: var(--warnBg); color: var(--warn); font-size: 12.5px; font-weight: 600; line-height: 22px;">{{attentionCount}}</span>
+        <span style="font-size: 13.5px; color: var(--mut);">not working</span>
+      </div>
+      <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+        <sc-for list="{{attention}}" as="a" hint-placeholder-count="3">
+          <button type="button" onClick="{{a.open}}" style="{{a.attRow}}" style-hover="background: var(--accSoft);">
+            <span style="width: 8px; height: 8px; border-radius: 99px; background: var(--warn); flex-shrink: 0;"></span>
+            <b style="width: 200px; font-size: 15px; font-weight: 600;">{{a.name}}</b>
+            <span style="flex: 1 1 260px; font-size: 14px; color: var(--mut);"><span style="color: var(--warn); font-weight: 600;">Stalled</span> · {{a.statusText}}</span>
+            <span style="font-size: 13.5px; font-weight: 600; color: var(--acc);">review →</span>
+          </button>
+        </sc-for>
+      </div>
+    </section>
+  </sc-if>
+
+  <section aria-label="Agent inventory" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+    <div style="overflow-x: auto;"><div style="min-width: 820px;">
+      <div style="display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.7fr); gap: 16px; padding: 12px 22px; background: var(--side); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">
+        <span>Agent</span><span>Owner</span><span>Where it runs</span><span style="text-align: right;">Status</span>
+      </div>
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; padding: 12px 22px; border-top: 1px solid var(--line2);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;">{{g.label}}</span>
+          <span style="font-size: 12.5px; font-weight: 600; color: var(--mut);">{{g.count}}</span>
+          <span style="font-size: 13px; color: var(--mut);">{{g.note}}</span>
+        </div>
+        <sc-for list="{{g.rows}}" as="a" hint-placeholder-count="6">
+          <div role="button" tabindex="0" onClick="{{a.open}}" style="{{a.rowStyle}}" style-hover="background: var(--accSoft);">
+            <span style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+              <span style="{{a.avatar}}">{{a.initials}}</span>
+              <span style="display: flex; flex-direction: column; gap: 3px; min-width: 0;">
+                <b style="font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{a.name}}</b>
+                <span style="display: flex; gap: 6px;"><span style="padding: 0 8px; border-radius: 99px; border: 1px solid var(--line2); font-size: 11.5px; color: var(--mut);">{{a.kindChip}}</span><span style="padding: 0 8px; border-radius: 99px; border: 1px solid var(--line2); font-size: 11.5px; color: var(--mut);">{{a.origin}}</span></span>
+              </span>
+            </span>
+            <span style="display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; color: var(--mut);"><span style="display: grid; place-items: center; width: 22px; height: 22px; border-radius: 99px; background: var(--track); font-size: 10.5px; font-weight: 700; color: var(--ink); flex-shrink: 0;">{{a.ownerInitial}}</span>{{a.ownerShort}}</span>
+            <span style="font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{a.runsOn}}</span>
+            <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 0;">
+              <span style="{{a.badge}}">{{a.statusLabel}}</span>
+              <span style="{{a.reasonStyle}}">{{a.statusText}}</span>
+            </span>
+          </div>
+        </sc-for>
+      </sc-for>
+      <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+        <div style="padding: 36px 22px; border-top: 1px solid var(--line); font-size: 14.5px; color: var(--mut);">No agents match this search.</div>
+      </sc-if>
+    </div></div>
+  </section>
+
+  <sc-if value="{{drawerOpen}}" hint-placeholder-val="{{false}}">
+    <div onClick="{{close}}" style="position: fixed; inset: 0; z-index: 40; background: rgba(28,20,14,0.35); backdrop-filter: blur(6px);"></div>
+    <aside role="dialog" aria-label="Agent details" style="position: fixed; top: 0; right: 0; bottom: 0; z-index: 41; width: 580px; max-width: 100vw; display: flex; flex-direction: column; background: var(--card); border-left: 1px solid var(--line2); box-shadow: var(--shadow); color: var(--ink);">
+      <div style="flex-shrink: 0; padding: 22px 26px 18px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line2);">
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <span style="{{sel.avatarBig}}">{{sel.initials}}</span>
+          <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+            <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 26px; line-height: 1.15;">{{sel.name}}</h2>
+            <span style="display: flex; gap: 6px; flex-wrap: wrap;"><span style="padding: 1px 10px; border-radius: 99px; border: 1px solid var(--line2); font-size: 12.5px; font-weight: 500;">{{sel.typeLabel}}</span><span style="padding: 1px 10px; border-radius: 99px; border: 1px solid var(--line2); font-size: 12.5px; color: var(--mut);">{{sel.origin}}</span></span>
+          </span>
+          <button type="button" onClick="{{close}}" aria-label="Close" style="display: grid; place-items: center; width: 34px; height: 34px; border-radius: 99px; border: 0; background: transparent; color: var(--mut); cursor: pointer;" style-hover="background: var(--track); color: var(--ink);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+        </div>
+        <button type="button" onClick="{{copyToken}}" style="align-self: flex-start; display: flex; align-items: center; gap: 8px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line2); background: var(--side); color: var(--ink); font-family: 'JetBrains Mono', monospace; font-size: 12.5px; cursor: pointer;">{{sel.token}} <span style="font-family: 'Mukta', sans-serif; font-size: 12px; color: var(--mut);">{{copyLabel}}</span></button>
+        <div style="display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px 14px; font-size: 14.5px;">
+          <span style="color: var(--mut);">Health</span>
+          <span style="display: flex; flex-direction: column; gap: 4px;"><span style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;"><span style="{{sel.badge}}">{{sel.statusLabel}}</span><span style="{{sel.healthInline}}">{{sel.healthShort}}</span></span><sc-if value="{{sel.notOk}}" hint-placeholder-val="{{true}}"><span style="{{sel.reasonLong}}">{{sel.statusText}}</span></sc-if></span>
+          <span style="color: var(--mut);">Owner</span><span>{{sel.owner}}</span>
+          <span style="color: var(--mut);">Runs on</span>
+          <span style="display: flex; flex-direction: column;"><span>{{sel.runsOn}}</span><sc-if value="{{sel.hasPod}}" hint-placeholder-val="{{true}}"><span style="font-size: 12.5px; color: var(--mut);"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{sel.pod}}</span> · this run only</span></sc-if></span>
+          <span style="color: var(--mut);">Access</span><span>{{sel.accessLine}}</span>
+          <span style="color: var(--mut);">Runs</span>
+          <span style="display: flex; flex-direction: column;"><span>{{sel.sched}}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--mut);">{{sel.schedSrc}}</span></span>
+          <span style="color: var(--mut);">Approval</span><span>{{sel.approval}}</span>
+        </div>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; padding: 0 26px 24px; display: flex; flex-direction: column;">
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Runtime</span>
+          <span style="font-size: 14.5px;">{{sel.runtimeLine}}</span>
+          <p style="{{sel.runtimeNoteStyle}}">{{sel.runtimeNote}}</p>
+        </section>
+
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">{{sel.authHeading}}</span>
+          <sc-if value="{{sel.isClient}}" hint-placeholder-val="{{false}}">
+            <p style="margin: 0; font-size: 14.5px; text-wrap: pretty;">Inherits <b style="font-weight: 600;">{{sel.ownerShort}}</b>'s Engineer role. Every call is checked against it, so this client can never do more than they can.</p>
+            <p style="margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--side); font-size: 13.5px; color: var(--mut); text-wrap: pretty;">The name is what the client said about itself. Any client can claim it. What is verified is the employee's sign-in.</p>
+          </sc-if>
+          <sc-for list="{{sel.authGroups}}" as="ag" hint-placeholder-count="3">
+            <div style="border: 1px solid var(--line2); border-radius: 14px; overflow: hidden;">
+              <button type="button" onClick="{{ag.toggle}}" style="display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 16px; border: 0; background: transparent; color: var(--ink); cursor: pointer; text-align: left;" style-hover="background: var(--side);">
+                <span style="{{ag.chev}}">›</span>
+                <b style="font-size: 15px; font-weight: 600;">{{ag.name}}</b>
+                <span style="{{ag.chip}}">{{ag.tag}}</span>
+                <span style="flex-grow: 1;"></span>
+                <span style="display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 99px; border: 1px solid var(--line2); font-size: 12px; color: var(--mut);">{{ag.count}}</span>
+              </button>
+              <sc-if value="{{ag.open}}" hint-placeholder-val="{{false}}">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 16px 14px 40px;">
+                  <sc-for list="{{ag.actions}}" as="x" hint-placeholder-count="2"><span style="padding: 2px 10px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);">{{x}}</span></sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </section>
+
+        <sc-if value="{{sel.isAuto}}" hint-placeholder-val="{{true}}">
+          <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line);">
+            <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Tool access · connect what it needs</span>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="flex: 1; height: 6px; border-radius: 99px; background: var(--track);"><div style="height: 100%; width: 100%; border-radius: 99px; background: var(--ok);"></div></div>
+              <span style="font-size: 13.5px; color: var(--mut); white-space: nowrap;">{{sel.readyLabel}}</span>
+            </div>
+            <sc-for list="{{sel.tools}}" as="t" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line2);">
+                <span style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; background: var(--okBg); color: var(--ok); font-size: 13px; font-weight: 700;">✓</span>
+                <span style="font-size: 15px; font-weight: 500;">{{t}}</span>
+              </div>
+            </sc-for>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+              <button type="button" onClick="{{toggleHow}}" style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border: 0; background: transparent; color: var(--mut); font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;"><span style="{{howChev}}">›</span>How these connections work</button>
+              <button type="button" style="border: 0; background: transparent; color: var(--acc); font-size: 13px; font-weight: 600; cursor: pointer;">+ re-provision</button>
+            </div>
+            <sc-if value="{{howOpen}}" hint-placeholder-val="{{false}}">
+              <p style="margin: 0; padding: 12px 14px; border-radius: 14px; background: var(--side); font-size: 13.5px; color: var(--mut); text-wrap: pretty;">Each tool's credential lives in the Gateway vault. When the agent calls, the Gateway checks policy, adds the credential on the way out, and never returns it. Re-provision rotates the agent's own token without touching the vendor credential.</p>
+            </sc-if>
+          </section>
+        </sc-if>
+
+        <section style="padding: 20px 0; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line);">
+          <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mut);">Approval gates</span>
+          <sc-for list="{{sel.gates}}" as="g" hint-placeholder-count="3">
+            <div style="display: flex; gap: 12px;">
+              <span style="display: grid; place-items: center; width: 26px; height: 26px; border-radius: 99px; flex-shrink: 0; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd); font-size: 13px; font-weight: 700;">✓</span>
+              <span style="display: flex; flex-direction: column;"><b style="font-size: 15px; font-weight: 600;">{{g.t}}</b><span style="font-size: 13.5px; color: var(--mut);">{{g.d}}</span></span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="border-bottom: 1px solid var(--line);">
+          <button type="button" onClick="{{toggleOwn}}" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 18px 0; border: 0; background: transparent; color: var(--mut); font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; text-align: left;"><span style="{{ownChev}}">›</span>Ownership &amp; accountability</button>
+          <sc-if value="{{ownOpen}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 18px;">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--line2);">
+                <span style="display: grid; place-items: center; width: 34px; height: 34px; border-radius: 99px; background: var(--track); font-size: 13px; font-weight: 700;">{{sel.ownerInitial}}</span>
+                <span style="display: flex; flex-direction: column;"><b style="font-size: 15px; font-weight: 600;">{{sel.owner}}</b><span style="font-size: 13px; color: var(--mut);">answerable owner</span></span>
+              </div>
+              <p style="margin: 0; font-size: 13.5px; color: var(--mut); text-wrap: pretty;">{{sel.ownerShort}} <b style="color: var(--ink); font-weight: 600;">owns</b> this agent: the answerable human for approvals and alerts. Ownership is accountability, <b style="color: var(--ink); font-weight: 600;">not</b> whose permissions it borrows.</p>
+            </div>
+          </sc-if>
+        </section>
+
+        <section>
+          <button type="button" onClick="{{toggleId}}" style="display: flex; align-items: center; gap: 8px; width: 100%; padding: 18px 0; border: 0; background: transparent; color: var(--mut); font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; text-align: left;"><span style="{{idChev}}">›</span>Identity &amp; location</button>
+          <sc-if value="{{idOpen}}" hint-placeholder-val="{{false}}">
+            <div style="display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px 14px; padding-bottom: 18px; font-size: 14.5px;">
+              <span style="color: var(--mut);">Type</span><span>{{sel.typeLabel}}</span>
+              <span style="color: var(--mut);">Enrolled via</span><span>{{sel.enrolledVia}}</span>
+              <span style="color: var(--mut);">Token</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">{{sel.tokenFp}}</span>
+              <span style="color: var(--mut);">Runs on</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">{{sel.runsOn}}</span>
+            </div>
+          </sc-if>
+        </section>
+      </div>
+
+      <div style="flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 14px 26px; border-top: 1px solid var(--line2); background: var(--side);">
+        <span style="flex: 1; font-size: 13.5px; color: var(--mut);">{{sel.footer}}</span>
+        <a href="#audit" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 13.5px; font-weight: 600; text-decoration: none;">See its calls</a>
+        <button type="button" onClick="{{toggleSuspend}}" style="padding: 7px 14px; border-radius: 999px; border: 1px solid var(--noBd); background: var(--noBg); color: var(--no); font-size: 13.5px; font-weight: 600; cursor: pointer;" style-hover="background: var(--no); color: #fff8ef;">{{suspendLabel}}</button>
+      </div>
+    </aside>
+  </sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const HUES = [25, 55, 85, 140, 175, 210, 260, 310, 350];
+class Component extends DCLogic {
+  state = { open: null, filter: 'all', query: '', suspended: {}, exp: {}, how: false, own: false, idOpen: false, copied: false };
+  componentDidMount() { this.onKey = e => { if (e.key === 'Escape') this.setState({ open: null }); }; window.addEventListener('keydown', this.onKey); }
+  componentWillUnmount() { window.removeEventListener('keydown', this.onKey); }
+  renderVals() {
+    const S = this.state;
+    const A = (name, kind, owner, runsOn, status, statusText, calls, token, extra) => ({ name, kind, owner, runsOn, status, statusText, calls, token, ...(extra || {}) });
+    const gtm = (n, txt, calls, tok, extra) => A(n, 'auto', 'vishwa', 'k8s · aws · gtm · gtm-' + n, 'ok', txt || 'between runs · daily', calls, tok, extra);
+    const all = [
+      A('support-agent', 'auto', 'dave', 'k8s · eks · dhi · support-agent', 'stalled', 'connected 77d ago, never called · it should run every 5m', 0, 'agt_ca3315df', { full: true, pod: 'support-agent-674b8d5579-wfmck', sched: 'every 5m', schedSrc: 'set manually' }),
+      gtm('enricher', 'between runs · daily', 154, 'agt_5e6614f4', { pod: 'gtm-enricher-29878710-kq7cg', schedSrc: '40 2 * * * · reported by the workload' }),
+      gtm('drafter', '', 52, 'agt_9d2c4e10'), gtm('harvester', '', 823, 'agt_f866ef3c'), gtm('qualifier', '', 211, 'agt_1a7be903'),
+      gtm('investor', '', 208, 'agt_77c0de21'), gtm('digest', '', 204, 'agt_3f19aa52'), gtm('roadmap', '', 156, 'agt_c41e9b07'), gtm('analyst', '', 52, 'agt_e0b2f6d8'),
+      A('jobs-digest', 'auto', 'vishwa', 'k8s · aws · job-search · jobs-digest', 'ok', 'between runs', 104, 'agt_6b8d1c3e'),
+      A('jobs-screener', 'auto', 'vishwa', 'k8s · aws · job-search · jobs-screener', 'ok', 'quiet for 9h', 34, 'agt_2e5f7a90'),
+      A('jobs-tailor', 'auto', 'vishwa', 'k8s · aws · job-search · jobs-tailor', 'stalled', 'nothing for 35d', 2, 'agt_8c3d0f15'),
+      A('jobs-inbox', 'auto', 'vishwa', 'k8s · aws · dhi · jobs-inbox', 'stalled', 'connected 62d ago, never called', 0, 'agt_4a9e2b76'),
+      A('dhvati-assistant', 'auto', 'vishwa', 'k8s · aws · default · dhvati-assistant', 'idle', 'connected · no calls yet, seen just now', 0, 'agt_d71f05c4'),
+      A('jobs-scout', 'auto', 'vishwa', 'not reported yet', 'idle', 'ready · no calls yet', 0, 'agt_5c0a8e3b'),
+      A('jobs-tracker', 'auto', 'vishwa', 'not reported yet', 'idle', 'ready · no calls yet', 0, 'agt_b93e6d27'),
+      A('Anthropic/ClaudeAI', 'client', 'dave', 'laptop · MCP · v1.0.0', 'idle', 'seen 80d ago · no calls in 24h', 0, 'agt_dsc_06e460f72aad'),
+      A('claude-code', 'client', 'dave', 'laptop · MCP · v2.1.220', 'idle', 'seen 80d ago · no calls in 24h', 0, 'agt_dsc_3b16de1bc0b9'),
+      A('claude-ai', 'client', 'dave', 'laptop · MCP · v0.1.0', 'idle', 'seen 88d ago · no calls in 24h', 0, 'agt_dsc_4e8c0a9f1673'),
+      A('Anthropic/Toolbox', 'client', 'dave', 'laptop · MCP · v1.0.0', 'idle', 'seen 88d ago · no calls in 24h', 0, 'agt_dsc_8276fd489e77'),
+      A('claude-code', 'client', 'vishwa', 'laptop · MCP', 'idle', 'no calls in 24h', 0, 'agt_dsc_5a1c9e0b3d72'),
+      A('Anthropic/ClaudeAI', 'client', 'vishwa', 'laptop · MCP', 'idle', 'no calls in 24h', 0, 'agt_dsc_c80f3a6e19d4'),
+      A('claude-ai', 'client', 'vishwa', 'laptop · MCP', 'idle', 'no calls in 24h', 0, 'agt_dsc_9e27b4d01f86'),
+      A('Anthropic/Toolbox', 'client', 'vishwa', 'laptop · MCP', 'idle', 'no calls in 24h', 0, 'agt_dsc_1d6a8c5f2e03'),
+      A('aud-probe', 'client', 'aud-probe', 'laptop · MCP', 'idle', 'connected · no calls yet, seen 70d ago', 0, 'agt_dsc_457a822b3ac5')
+    ];
+    const email = o => (o === 'aud-probe' ? 'aud-probe' : o) + '@dhi.com';
+    const tone = { ok: ['ok', '✓ Calls OK'], stalled: ['warn', '▲ Stalled'], idle: ['mut', 'Idle'], suspended: ['no', '■ Suspended'] };
+    const badge = t => 'display: inline-flex; padding: 2px 10px; border-radius: 99px; font-size: 12.5px; font-weight: 600; white-space: nowrap; ' + (t === 'mut' ? 'background: var(--track); color: var(--mut); border: 1px solid var(--line2);' : 'background: var(--' + t + 'Bg); color: var(--' + t + '); border: 1px solid var(--' + t + 'Bd);');
+    const hue = s => HUES[[...s].reduce((n, c) => n + c.charCodeAt(0), 0) % HUES.length];
+    const deco = (a, i) => {
+      const st = S.suspended[a.token] ? 'suspended' : a.status;
+      const [t, label] = tone[st];
+      const auto = a.kind === 'auto';
+      const h = hue(a.name + i);
+      const av = (s, f) => 'display: grid; place-items: center; width: ' + s + 'px; height: ' + s + 'px; border-radius: ' + Math.round(s / 3.2) + 'px; flex-shrink: 0; font-size: ' + f + 'px; font-weight: 700; background: oklch(0.62 0.09 ' + h + ' / 0.22); color: oklch(0.45 0.1 ' + h + '); border: 1px solid oklch(0.6 0.09 ' + h + ' / 0.35);';
+      const statusText = st === 'suspended' ? 'suspended at the Gateway · next call is denied' : a.statusText;
+      const groups = a.full ? [['Access requests', 'always on', ['request_access']], ['Model / LLM', 'live', ['llm_complete']], ['GitHub', 'live', ['github_list_repos', 'github_create_issue', 'github_read_issues', 'github_list_issues', 'github_add_comment', 'github_create_pr', 'github_list_pulls', 'github_merge_pr', 'github_get_file']], ['Slack', 'live', ['slack_read_messages', 'slack_post_message']]]
+        : [['Model / LLM', 'live', ['llm_complete']], ['Slack', 'live', ['slack_post_message']]];
+      const nActs = groups.reduce((n, g) => n + g[2].length, 0);
+      const tools = groups.filter(g => g[0] !== 'Access requests').map(g => g[0]);
+      return { ...a,
+        initials: a.name.replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase(),
+        isAuto: auto, isClient: !auto, kindChip: auto ? 'hosted' : 'interactive', origin: auto ? 'registered' : 'discovered',
+        typeLabel: auto ? 'Hosted service' : 'Interactive client',
+        ownerShort: a.owner, owner: email(a.owner), ownerInitial: a.owner[0].toUpperCase(),
+        statusLabel: label, statusText, badge: badge(t), notOk: st !== 'ok' && st !== 'idle', isOk: st === 'ok',
+        healthShort: st === 'ok' || st === 'idle' ? statusText : '',
+        healthInline: 'font-size: 14px; color: var(--mut);',
+        reasonStyle: 'max-width: 100%; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: ' + (st === 'ok' || st === 'idle' ? 'var(--mut)' : 'var(--' + t + ')') + ';',
+        reasonLong: 'font-size: 13.5px; color: var(--' + t + ');',
+        avatar: av(36, 12), avatarBig: av(52, 16),
+        hasPod: !!a.pod, pod: a.pod || '',
+        accessLine: auto ? nActs + ' actions · ' + tools.length + ' of ' + tools.length + ' connected' : 'inherits ' + a.owner + "'s role · 4 actions",
+        sched: a.sched || (auto ? 'daily' : 'when ' + a.owner + ' uses it'), schedSrc: a.schedSrc || (auto ? 'reported by the workload' : 'interactive · no schedule'),
+        approval: auto ? 'Approved · vishwa@dhi.com' : 'Auto-approved on sign-in',
+        runtimeLine: a.calls ? a.calls + ' calls in 24h · last ' + (a.status === 'stalled' ? '35d ago' : '8h ago') : 'no calls yet',
+        runtimeNote: st === 'stalled' ? 'Silent well past its schedule: ' + statusText + '. The process is likely stopped, crashed, or its image is missing. Check its logs or deployment.' : st === 'suspended' ? 'Suspended by an admin. The Gateway denies its next call; resume to let it act again.' : auto ? 'Calls are arriving on schedule and nothing the Gateway saw failed.' : 'Acts only while ' + a.owner + ' is signed in and using it.',
+        runtimeNoteStyle: 'margin: 0; font-size: 14px; text-wrap: pretty; color: ' + (st === 'stalled' ? 'var(--warn)' : st === 'suspended' ? 'var(--no)' : 'var(--mut)') + ';',
+        authHeading: auto ? 'Authorization · its own least-privilege grant' : 'Authorization · delegated by ' + a.owner,
+        authGroups: auto ? groups.map(([name, tag, acts]) => {
+          const k = a.token + name, open = !!S.exp[k];
+          return { name, tag, count: acts.length, actions: acts, open, toggle: () => this.setState({ exp: { ...S.exp, [k]: !open } }),
+            chev: 'display: inline-block; width: 12px; color: var(--mut); font-size: 16px; transition: transform 0.15s ease-out; transform: rotate(' + (open ? 90 : 0) + 'deg);',
+            chip: 'padding: 0 8px; border-radius: 99px; font-size: 11.5px; font-weight: 600; ' + (tag === 'live' ? 'background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);' : 'border: 1px solid var(--line2); color: var(--mut);') };
+        }) : [],
+        tools, readyLabel: tools.length + ' of ' + tools.length + ' ready',
+        gates: auto ? [{ t: 'Enrollment approved', d: 'Approved by vishwa@dhi.com.' }, { t: 'Standing policy', d: nActs + ' actions, least-privilege · checked on every call, fail-closed.' }, { t: 'Step-up approval', d: "Sensitive actions can park for an owner's async approval." }]
+          : [{ t: 'Sign-in verified', d: a.owner + "'s IdP token, checked on every call." }, { t: 'Standing policy', d: "The person's role, fail-closed." }, { t: 'Step-up approval', d: 'Sensitive actions wait for ' + a.owner + '.' }],
+        enrolledVia: auto ? 'Enrollment token · minted in console' : 'OIDC sign-in · client name self-reported',
+        tokenFp: auto ? 'enrollment · fp ' + a.token.slice(4, 10) : 'session · ' + a.token,
+        footer: st === 'suspended' ? 'Status: suspended. Managed by an admin.' : 'Status: approved. Managed by an admin.',
+        open: () => this.setState({ open: a.token, copied: false }),
+        attRow: 'display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; width: 100%; padding: 14px 22px; border: 0; border-top: ' + (i ? '1px solid var(--line)' : '0') + '; background: transparent; color: var(--ink); cursor: pointer; text-align: left;',
+        rowStyle: 'display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1.7fr); gap: 16px; align-items: center; padding: 14px 22px; cursor: pointer; border-top: 1px solid var(--line); ' + (S.open === a.token ? 'background: var(--accSoft); box-shadow: inset 3px 0 0 var(--acc);' : '')
+      };
+    };
+    const decoAll = all.map(deco);
+    const q = S.query.trim().toLowerCase();
+    const f = S.filter;
+    const shown = decoAll.filter(a => (f === 'all' || (f === 'interactive' && a.isClient) || (f === 'headless' && a.isAuto)) && f !== 'pending' && (!q || (a.name + ' ' + a.owner + ' ' + a.runsOn).toLowerCase().includes(q)));
+    const auto = shown.filter(a => a.isAuto), cli = shown.filter(a => a.isClient);
+    const groups = [];
+    if (auto.length) groups.push({ label: 'Autonomous agents', count: auto.length, note: 'hosted services and scheduled jobs · their own identity', rows: auto });
+    if (cli.length) groups.push({ label: 'Employee clients', count: cli.length, note: 'signed in by a person · act as them', rows: cli });
+    const nSusp = Object.values(S.suspended).filter(Boolean).length;
+    const stalledAll = decoAll.filter(a => a.status === 'stalled' && !S.suspended[a.token]);
+    const num = c => 'font-family: "Marcellus", serif; font-size: 40px; line-height: 1.1; font-variant-numeric: tabular-nums; color: ' + c + ';';
+    const dot = c => 'width: 8px; height: 8px; border-radius: 99px; background: ' + c + ';';
+    const stats = [
+      { label: 'No issues seen', value: decoAll.length - stalledAll.length - nSusp, note: '16 hosted · 9 interactive · incl. quiet between runs', dot: dot('var(--ok)'), numStyle: num('var(--ink)') },
+      { label: 'Needs attention', value: stalledAll.length, note: 'degraded · erroring · stalled', dot: dot('var(--warn)'), numStyle: num(stalledAll.length ? 'var(--warn)' : 'var(--ink)') },
+      { label: 'Pending approval', value: 0, note: 'awaiting an admin', dot: dot('var(--acc)'), numStyle: num('var(--ink)') },
+      { label: 'Suspended', value: nSusp, note: 'blocked, fail-closed', dot: dot('var(--no)'), numStyle: num(nSusp ? 'var(--no)' : 'var(--ink)') }
+    ];
+    const filters = [['all', 'All', 25], ['interactive', 'Interactive', 9], ['headless', 'Headless', 16], ['pending', 'Pending', 0]].map(([id, label, count]) => ({
+      label, count, pick: () => this.setState({ filter: id }),
+      style: 'display: inline-flex; gap: 6px; align-items: center; padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; ' + (id === f ? 'background: var(--accSoft); color: var(--acc); border: 1px solid var(--acc);' : 'background: var(--card); color: var(--ink); border: 1px solid var(--line2);')
+    }));
+    const sel = decoAll.find(a => a.token === S.open) || decoAll[0];
+    const chev = o => 'display: inline-block; font-size: 15px; transition: transform 0.15s ease-out; transform: rotate(' + (o ? 90 : 0) + 'deg);';
+    return {
+      stats, filters, groups, empty: shown.length === 0, query: S.query,
+      setQuery: e => this.setState({ query: e.target.value }),
+      attention: stalledAll, hasAttention: stalledAll.length > 0, attentionCount: stalledAll.length,
+      drawerOpen: !!S.open, sel, close: () => this.setState({ open: null }),
+      copyLabel: S.copied ? 'copied' : 'copy', copyToken: () => this.setState({ copied: true }),
+      howOpen: S.how, howChev: chev(S.how), toggleHow: () => this.setState({ how: !S.how }),
+      ownOpen: S.own, ownChev: chev(S.own), toggleOwn: () => this.setState({ own: !S.own }),
+      idOpen: S.idOpen, idChev: chev(S.idOpen), toggleId: () => this.setState({ idOpen: !S.idOpen }),
+      suspendLabel: S.suspended[sel.token] ? 'Resume' : 'Suspend',
+      toggleSuspend: () => this.setState({ suspended: { ...S.suspended, [sel.token]: !S.suspended[sel.token] } })
+    };
+  }
+}
+</script>
+</body>
+</html>

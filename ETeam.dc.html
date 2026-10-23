@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0; max-width: 1080px;">
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Identity · Team</span>
+    <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Team</h1>
+    <p style="margin: 0; max-width: 640px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">The people who run dhvati for your org. This is not your workforce: the 29 people agents act for are on <a href="#employees" style="color: var(--acc);">Employees</a>.</p>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+    <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 22px; display: flex; flex-direction: column; gap: 4px;">
+      <span style="display: flex; justify-content: space-between; align-items: baseline;"><b style="font-size: 16px; font-weight: 600;">Admins</b><span style="font-family: 'Marcellus', serif; font-size: 32px; line-height: 1;">{{adminCount}}</span></span>
+      <span style="font-size: 14px; color: var(--mut);">Write policy, approve agents, revoke grants, change settings.</span>
+    </div>
+    <div style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 22px; display: flex; flex-direction: column; gap: 4px;">
+      <span style="display: flex; justify-content: space-between; align-items: baseline;"><b style="font-size: 16px; font-weight: 600;">Members</b><span style="font-family: 'Marcellus', serif; font-size: 32px; line-height: 1;">{{memberCount}}</span></span>
+      <span style="font-size: 14px; color: var(--mut);">Register and run agents, request custom tools. Can't change policy.</span>
+    </div>
+  </div>
+
+  <section aria-label="Invite" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px;">
+    <b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Invite someone</b>
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+      <span style="flex: 1 1 280px; display: flex; flex-direction: column; gap: 6px;"><label for="invite-email" style="font-size: 13.5px; color: var(--mut);">Work email</label><input id="invite-email" value="{{email}}" onInput="{{setEmail}}" placeholder="name@acme.com" style="box-sizing: border-box; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--bg); color: var(--ink); font-size: 14px; outline: none;" style-focus="border-color: var(--acc); box-shadow: 0 0 0 3px var(--accSoft);"></span>
+      <span style="display: flex; flex-direction: column; gap: 6px;"><label for="invite-role" style="font-size: 13.5px; color: var(--mut);">Role</label>
+        <select id="invite-role" value="{{role}}" onChange="{{setRole}}" style="padding: 9px 14px; border-radius: 999px; border: 1px solid var(--line2); background: var(--bg); color: var(--ink); font-size: 14px;"><option value="Admin">Admin</option><option value="Member">Member</option></select></span>
+      <button type="button" onClick="{{invite}}" disabled="{{cantInvite}}" style="{{inviteStyle}}">Send invite</button>
+    </div>
+    <span style="font-size: 13.5px; color: var(--mut);">They sign in through Keycloak like everyone else. Admin access also requires the org-admins group.</span>
+  </section>
+
+  <sc-if value="{{hasInvites}}" hint-placeholder-val="{{false}}">
+    <section aria-label="Pending invites" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+      <div style="padding: 18px 24px 10px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">Invited · waiting for first sign-in</div>
+      <sc-for list="{{invites}}" as="i" hint-placeholder-count="1">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-top: 1px solid var(--line); font-size: 14.5px;">
+          <span style="flex-grow: 1; font-weight: 600;">{{i.email}}</span>
+          <span style="padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--track); color: var(--mut);">{{i.role}}</span>
+          <button type="button" onClick="{{i.cancel}}" style="padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer;">Cancel invite</button>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
+  <sc-if value="{{noInvites}}" hint-placeholder-val="{{true}}">
+    <section aria-label="People" style="padding: 40px 28px; border-radius: 18px; border: 1px dashed var(--line2); display: flex; flex-direction: column; gap: 6px;">
+      <b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">No one has signed in to run dhvati yet</b>
+      <span style="max-width: 520px; font-size: 14.5px; color: var(--mut); text-wrap: pretty;">Invite the colleagues who will govern policy or build agents. Your employees come from your identity provider and never need to sign in here.</span>
+    </section>
+  </sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { email: '', role: 'Admin', invites: [] };
+  renderVals() {
+    const { email, role, invites } = this.state;
+    const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim());
+    return {
+      email, role, hasInvites: invites.length > 0, noInvites: invites.length === 0,
+      adminCount: invites.filter(i => i.role === 'Admin').length, memberCount: invites.filter(i => i.role === 'Member').length,
+      setEmail: e => this.setState({ email: e.target.value }),
+      setRole: e => this.setState({ role: e.target.value }),
+      cantInvite: !valid,
+      inviteStyle: 'padding: 10px 20px; border-radius: 999px; border: 0; background: var(--accFill); color: #fff8ef; font-size: 14px; font-weight: 600; cursor: ' + (valid ? 'pointer' : 'not-allowed') + '; opacity: ' + (valid ? 1 : 0.45) + ';',
+      invite: () => valid && this.setState({ invites: invites.concat({ email: email.trim(), role }), email: '' }),
+      invites: invites.map((i, k) => ({ ...i, cancel: () => this.setState({ invites: invites.filter((_, j) => j !== k) }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

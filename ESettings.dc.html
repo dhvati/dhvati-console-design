@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0; max-width: 1080px;">
+  <header style="display: flex; flex-direction: column; gap: 8px;">
+    <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Identity · Settings</span>
+    <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Settings</h1>
+    <p style="margin: 0; max-width: 640px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">Where people and agents come from, where your data lives, and the switches that stop everything.</p>
+  </header>
+
+  <div role="tablist" aria-label="Settings sections" style="display: flex; gap: 4px; padding: 4px; align-self: flex-start; border-radius: 999px; background: var(--side); border: 1px solid var(--line);">
+    <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button></sc-for>
+  </div>
+
+  <sc-if value="{{isIdentity}}" hint-placeholder-val="{{true}}">
+    <section aria-label="Identity provider" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+        <b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Keycloak</b>
+        <span style="padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);">connected</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--mut);">https://id.dhvati.ai/realms/dhi</span>
+        <span style="flex-grow: 1;"></span>
+        <button type="button" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">Change provider</button>
+      </div>
+      <span style="font-size: 14px; color: var(--mut);">Sign-in by OIDC · directory pulled every 15s, last checked 2s ago. Groups become roles; people become employees.</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+        <sc-for list="{{roles}}" as="r" hint-placeholder-count="5"><span style="padding: 3px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; background: var(--track); color: var(--mut);">{{r}}</span></sc-for>
+      </div>
+    </section>
+    <section aria-label="Agent discovery" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px;">
+      <b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Employee clients</b>
+      <p style="margin: 0; font-size: 14px; color: var(--mut); text-wrap: pretty;">When someone signs in through Claude Code, Cursor or their own client, it appears on Agents with its own kill switch. Its name is self-reported; the person's sign-in is what's verified.</p>
+      <div style="display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: var(--side);">
+        <button type="button" role="switch" aria-checked="{{strict}}" aria-label="Require approval for new clients" onClick="{{toggleStrict}}" style="{{switchStyle}}"><span style="{{knobStyle}}"></span></button>
+        <span style="display: flex; flex-direction: column;"><b style="font-size: 15px; font-weight: 600;">Require approval for new clients</b><span style="font-size: 13.5px; color: var(--mut);">{{strictText}}</span></span>
+      </div>
+    </section>
+    <section aria-label="Keyless agents" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span style="display: flex; flex-direction: column;"><b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Keyless agents</b><span style="font-size: 14px; color: var(--mut);">Trust a runtime's own signed identity instead of minting a token.</span></span>
+        <button type="button" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--acc); background: var(--accSoft); color: var(--acc); font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="background: var(--accFill); color: #fff8ef;">Add a trust rule</button>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 14px 16px; border-radius: 14px; border: 1px dashed var(--line2); font-size: 13.5px;">
+        <span style="display: flex; flex-direction: column;"><span style="color: var(--mut);">Issuer</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; word-break: break-all;">token.actions.githubusercontent.com</span></span>
+        <span style="display: flex; flex-direction: column;"><span style="color: var(--mut);">Subject</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">repo:acme/deploy:ref:main</span></span>
+        <span style="display: flex; flex-direction: column;"><span style="color: var(--mut);">Becomes</span><span>deploy-bot · owner vishwa</span></span>
+      </div>
+      <span style="font-size: 13px; color: var(--mut);">Example shown. GitHub Actions, Kubernetes service accounts and cloud identities are supported.</span>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{isGeneral}}" hint-placeholder-val="{{false}}">
+    <section aria-label="Workspace" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px;">
+      <label for="ws-name" style="font-size: 14px; font-weight: 600;">Workspace name</label>
+      <input id="ws-name" value="acme" readonly style="max-width: 360px; box-sizing: border-box; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--side); color: var(--ink); font-size: 14px;">
+      <span style="font-size: 13.5px; color: var(--mut);">Renaming is a managed change. Contact support.</span>
+    </section>
+    <section aria-label="Data residency" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px;">
+      <span style="display: flex; flex-direction: column;"><b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Data residency</b><span style="font-size: 14px; color: var(--mut);">Where policy, audit and vault metadata live.</span></span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+        <sc-for list="{{regions}}" as="r" hint-placeholder-count="4">
+          <span style="{{r.style}}"><b style="font-size: 15px; font-weight: 600;">{{r.t}}</b><span style="font-size: 13.5px; color: var(--mut);">{{r.d}}</span></span>
+        </sc-for>
+      </div>
+    </section>
+    <section aria-label="Export" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 22px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px;">
+      <span style="flex: 1 1 360px; display: flex; flex-direction: column;"><b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Take it on-prem</b><span style="font-size: 14px; color: var(--mut); text-wrap: pretty;">Export policy, roles, grants, integrations and the full audit history as one bundle. Credentials stay in the vault; you get a reconnect checklist.</span></span>
+      <button type="button" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">Download export bundle</button>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{isDanger}}" hint-placeholder-val="{{false}}">
+    <section aria-label="Danger zone" style="background: var(--card); border: 1px solid var(--noBd); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+      <sc-for list="{{danger}}" as="d" hint-placeholder-count="3">
+        <div style="padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; border-bottom: 1px solid var(--line);">
+          <span style="flex: 1 1 360px; display: flex; flex-direction: column;"><b style="font-size: 16px; font-weight: 600;">{{d.t}}</b><span style="font-size: 14px; color: var(--mut);">{{d.d}}</span></span>
+          <sc-if value="{{d.confirming}}" hint-placeholder-val="{{false}}">
+            <span style="font-size: 13.5px; color: var(--no); font-weight: 600;">Are you sure?</span>
+            <button type="button" onClick="{{d.cancel}}" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
+            <button type="button" onClick="{{d.cancel}}" style="padding: 8px 16px; border-radius: 999px; border: 0; background: var(--no); color: #fff8ef; font-size: 14px; font-weight: 600; cursor: pointer;">{{d.b}}</button>
+          </sc-if>
+          <sc-if value="{{d.idle}}" hint-placeholder-val="{{true}}">
+            <button type="button" onClick="{{d.ask}}" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--noBd); background: var(--noBg); color: var(--no); font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="background: var(--no); color: #fff8ef;">{{d.b}}</button>
+          </sc-if>
+        </div>
+      </sc-for>
+    </section>
+  </sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'identity', strict: false, confirm: null };
+  renderVals() {
+    const { tab, strict, confirm } = this.state;
+    const tabs = [['identity', 'Identity'], ['general', 'General'], ['danger', 'Danger zone']].map(([id, label]) => ({
+      label, pick: () => this.setState({ tab: id, confirm: null }),
+      style: 'padding: 7px 18px; border: 0; border-radius: 999px; cursor: pointer; font-size: 14px; font-weight: 600; ' + (id === tab ? 'background: var(--card); box-shadow: var(--shadow); color: ' + (id === 'danger' ? 'var(--no)' : 'var(--acc)') + ';' : 'background: transparent; color: var(--mut);')
+    }));
+    const region = on => 'padding: 14px 16px; border-radius: 14px; display: flex; flex-direction: column; ' + (on ? 'background: var(--accSoft); border: 1px solid var(--acc);' : 'background: var(--side); border: 1px solid transparent;');
+    const danger = [
+      ['agents', 'Stop every agent now', 'Suspends all 25 agents at the Gateway on their next call. Employees keep their own access.', 'Suspend all agents'],
+      ['grants', 'Revoke every grant', 'Removes the 2 individual grants. Role policy is untouched.', 'Revoke all grants'],
+      ['delete', 'Delete this workspace', 'Erases policy, audit and vault metadata in ap-south-1. Export first if you need a record.', 'Delete workspace']
+    ].map(([id, t, d, b]) => ({ t, d, b, confirming: confirm === id, idle: confirm !== id, ask: () => this.setState({ confirm: id }), cancel: () => this.setState({ confirm: null }) }));
+    return {
+      tabs, isIdentity: tab === 'identity', isGeneral: tab === 'general', isDanger: tab === 'danger',
+      roles: ['Contractor', 'Engineer', 'Engineering Manager', 'Senior Engineer', 'Support'],
+      strict, toggleStrict: () => this.setState({ strict: !strict }),
+      strictText: strict ? 'On. A client we have never seen waits for an admin, and its calls are denied until then.' : 'Off (default). New clients are approved and inherit the person’s own access. Nobody gains anything.',
+      switchStyle: 'position: relative; width: 44px; height: 24px; border-radius: 999px; border: 0; cursor: pointer; flex-shrink: 0; background: ' + (strict ? 'var(--accFill)' : 'var(--line2)') + ';',
+      knobStyle: 'position: absolute; top: 3px; left: ' + (strict ? '23px' : '3px') + '; width: 18px; height: 18px; border-radius: 999px; background: #fff8ef; box-shadow: 0 1px 2px rgba(0,0,0,0.2); transition: left 0.18s ease-out;',
+      regions: [['India · Mumbai', 'ap-south-1 · current', true], ['On-prem', 'your infrastructure'], ['EU · Frankfurt', 'GDPR'], ['US · Virginia', 'us-east-1']].map(([t, d, on]) => ({ t, d, style: region(on) })),
+      danger
+    };
+  }
+}
+</script>
+</body>
+</html>

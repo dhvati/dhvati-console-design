@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0; min-height: 100vh;">
+  <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Govern · Access control</span>
+      <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Roles &amp; Policies</h1>
+      <p style="margin: 0; max-width: 660px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">Which role may call which action. Anything not allowed here is denied: <b style="font-weight: 600; color: var(--ink);">default-deny</b>. It compiles to Cedar and the Gateway enforces it within seconds.</p>
+    </div>
+    <div style="display: flex; gap: 24px; font-size: 13.5px; color: var(--mut); font-variant-numeric: tabular-nums;">
+      <span style="display: flex; flex-direction: column;"><b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: var(--ok);">{{allowCount}}</b>allowed</span>
+      <span style="display: flex; flex-direction: column;"><b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: var(--warn);">2</b>grants</span>
+      <span style="display: flex; flex-direction: column;"><b style="font-family: 'Marcellus', serif; font-weight: 400; font-size: 30px; line-height: 1.1; color: var(--ink);">{{denyCount}}</b>default-deny</span>
+    </div>
+  </header>
+
+  <section aria-label="Policy simulator" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 20px; border-radius: 18px; background: var(--side); border: 1px solid var(--line);">
+    <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--acc);">Try it</span>
+    <label for="sim-person" style="font-size: 14.5px; color: var(--mut);">Would</label>
+    <select id="sim-person" value="{{simPerson}}" onChange="{{setPerson}}" style="background: var(--card); color: var(--ink); border: 1px solid var(--line2); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 600;">
+      <sc-for list="{{people}}" as="p" hint-placeholder-count="6"><option value="{{p.id}}" selected="{{p.selected}}">{{p.label}}</option></sc-for>
+    </select>
+    <label for="sim-action" style="font-size: 14.5px; color: var(--mut);">be allowed to call</label>
+    <select id="sim-action" value="{{simAction}}" onChange="{{setAction}}" style="background: var(--card); color: var(--ink); border: 1px solid var(--line2); border-radius: 999px; padding: 6px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">
+      <sc-for list="{{actionOptions}}" as="o" hint-placeholder-count="8"><option value="{{o.id}}" selected="{{o.selected}}">{{o.id}}</option></sc-for>
+    </select>
+    <span style="font-size: 14.5px; color: var(--mut);">?</span>
+    <span style="flex-grow: 1;"></span>
+    <span style="{{sim.chipStyle}}">{{sim.label}}</span>
+    <span style="font-size: 13.5px; color: var(--mut);">{{sim.reason}}</span>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+    <section aria-label="Policy matrix" style="flex: 3 1 640px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="background: var(--side);">
+              <th style="padding: 12px 20px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut); text-align: left; width: 220px;">Action</th>
+              <sc-for list="{{roles}}" as="r" hint-placeholder-count="5"><th style="padding: 12px 6px; font-size: 13px; font-weight: 600; text-align: center; color: var(--mut);">{{r}}</th></sc-for>
+            </tr>
+          </thead>
+          <sc-for list="{{groups}}" as="g" hint-placeholder-count="2">
+            <tbody>
+              <tr style="border-top: 1px solid var(--line2);">
+                <td colspan="6" style="padding: 14px 20px 6px;"><span style="font-family: 'Marcellus', serif; font-size: 18px;">{{g.name}}</span> <span style="font-size: 13px; color: var(--mut);">· {{g.summary}}</span></td>
+              </tr>
+              <sc-for list="{{g.rows}}" as="row" hint-placeholder-count="4">
+                <tr style="border-top: 1px solid var(--line);">
+                  <td style="{{row.nameStyle}}">{{row.id}}</td>
+                  <sc-for list="{{row.cells}}" as="c" hint-placeholder-count="5">
+                    <td style="padding: 3px;">
+                      <button type="button" onClick="{{c.toggle}}" aria-label="{{c.aria}}" style="{{c.style}}">{{c.mark}}<sc-if value="{{c.hasGrant}}" hint-placeholder-val="{{false}}"><span style="position: absolute; right: 6px; top: 5px; font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 99px; background: var(--warnBg); color: var(--warn); border: 1px solid var(--warnBd);">+1</span></sc-if><sc-if value="{{c.dirty}}" hint-placeholder-val="{{false}}"><span style="position: absolute; left: 7px; top: 7px; width: 6px; height: 6px; border-radius: 99px; background: var(--acc);"></span></sc-if></button>
+                    </td>
+                  </sc-for>
+                </tr>
+              </sc-for>
+            </tbody>
+          </sc-for>
+        </table>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 18px; padding: 12px 20px; border-top: 1px solid var(--line2); font-size: 13px; color: var(--mut);">
+        <span><span style="color: var(--ok); font-weight: 700;">✓</span> allowed by role</span>
+        <span><span style="font-size: 10px; font-weight: 700; padding: 0 5px; border-radius: 99px; background: var(--warnBg); color: var(--warn); border: 1px solid var(--warnBd);">+1</span> individual grant</span>
+        <span>— default-deny, the normal posture</span>
+        <span style="flex-grow: 1;"></span>
+        <span>New actions from MCP servers arrive here denied.</span>
+      </div>
+    </section>
+
+    <aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+      <section aria-label="Individual grants" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+        <div style="padding: 18px 20px 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 10px;">
+          <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Grants</h2>
+          <span style="font-size: 13px; color: var(--warn); font-weight: 600;">{{grantNote}}</span>
+        </div>
+        <sc-for list="{{grants}}" as="g" hint-placeholder-count="2">
+          <div style="padding: 14px 20px; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--line);">
+            <span style="display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 600;">{{g.who}} <span style="padding: 2px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background: var(--warnBg); color: var(--warn); border: 1px solid var(--warnBd); white-space: nowrap;">{{g.badge}}</span></span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">{{g.tool}}</span>
+            <span style="font-size: 13px; color: var(--mut);">{{g.meta}}</span>
+            <span style="display: flex; gap: 8px; padding-top: 4px;">
+              <sc-if value="{{g.canExpire}}" hint-placeholder-val="{{true}}"><button type="button" onClick="{{g.expire}}" style="padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">Expire in 24h</button></sc-if>
+              <button type="button" onClick="{{g.revoke}}" style="padding: 6px 14px; border-radius: 999px; border: 1px solid var(--noBd); background: var(--noBg); color: var(--no); font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: var(--no); color: #fff8ef;">Revoke</button>
+            </span>
+          </div>
+        </sc-for>
+      </section>
+      <section aria-label="Compiled Cedar" style="background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;">
+        <span style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px;"><h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 22px;">Cedar</h2><span style="font-size: 12.5px; color: var(--mut);">what the Gateway evaluates</span></span>
+        <pre style="margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--side); font: 11.5px/1.65 'JetBrains Mono', monospace; color: var(--ink); overflow-x: auto; white-space: pre;">permit(principal in Role::"Engineer",
+       action == Action::"slack_post_message",
+       resource);</pre>
+      </section>
+    </aside>
+  </div>
+
+  <sc-if value="{{hasDirty}}" hint-placeholder-val="{{false}}">
+    <div style="position: sticky; bottom: 16px; margin-top: auto; padding: 12px 14px 12px 22px; border-radius: 999px; background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--line2); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+      <span style="display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500;"><span style="width: 8px; height: 8px; border-radius: 99px; background: var(--acc);"></span>{{dirtyLabel}} · not enforced until you save</span>
+      <span style="display: flex; gap: 8px;">
+        <button type="button" onClick="{{discard}}" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;">Discard</button>
+        <button type="button" onClick="{{save}}" style="padding: 8px 18px; border-radius: 999px; border: 0; background: var(--accFill); color: #fff8ef; font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="background: var(--accFillH);">Save changes</button>
+      </span>
+    </div>
+  </sc-if>
+  <sc-if value="{{saved}}" hint-placeholder-val="{{false}}">
+    <div style="position: sticky; bottom: 16px; margin-top: auto; padding: 12px 22px; border-radius: 999px; background: var(--okBg); border: 1px solid var(--okBd); color: var(--ok); font-size: 14px; font-weight: 600;">Policy saved · enforced by the Gateway within seconds.</div>
+  </sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROLES = ['Contractor', 'Engineer', 'Engineering Manager', 'Senior Engineer', 'Support'];
+const GH = ['github_list_repos', 'github_create_issue', 'github_read_issues', 'github_list_issues', 'github_add_comment', 'github_create_pr', 'github_list_pulls', 'github_merge_pr', 'github_get_file'];
+const SL = ['slack_read_messages', 'slack_post_message'];
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const base = {};
+    ['github_list_repos', 'github_create_issue', 'slack_read_messages'].forEach(a => ROLES.forEach(r => { base[a + '|' + r] = true; }));
+    base['slack_post_message|Engineer'] = true;
+    this.state = { base, grid: { ...base }, simPerson: 'carol', simAction: 'slack_post_message', grantState: {}, saved: false };
+  }
+  renderVals() {
+    const { grid, base, grantState } = this.state;
+    const grantCells = { 'slack_read_messages|Engineer': 'dave', 'slack_post_message|Engineer': 'vishwa' };
+    const cell = (a, r) => {
+      const k = a + '|' + r, on = !!grid[k], dirty = on !== !!base[k], gk = grantCells[k];
+      return {
+        mark: on ? '✓' : '—', hasGrant: !!gk && grantState[gk] !== 'revoked', dirty,
+        aria: (on ? 'Allowed: ' : 'Denied: ') + r + ' calling ' + a,
+        toggle: () => this.setState({ grid: { ...this.state.grid, [k]: !this.state.grid[k] }, saved: false }),
+        style: 'position: relative; width: 100%; height: 34px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 700; ' +
+          (on ? 'background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);' : 'background: transparent; color: var(--mut); border: 1px solid transparent;') +
+          (dirty ? ' box-shadow: inset 0 0 0 1.5px var(--acc);' : '')
+      };
+    };
+    const row = a => {
+      const cells = ROLES.map(r => cell(a, r));
+      return { id: a, cells, nameStyle: 'padding: 0 20px; height: 40px; font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: ' + (cells.some(c => c.mark === '✓') ? 'var(--ink)' : 'var(--mut)') + ';' };
+    };
+    const count = ids => ids.reduce((n, a) => n + ROLES.filter(r => grid[a + '|' + r]).length, 0);
+    const liveGrants = ['dave', 'vishwa'].filter(k => grantState[k] !== 'revoked').length;
+    const groups = [
+      { name: 'GitHub', summary: '9 actions · ' + count(GH) + ' allows · managed connector', rows: GH.map(row) },
+      { name: 'Slack', summary: '2 governable actions · ' + count(SL) + ' allows · ' + liveGrants + ' grants', rows: SL.map(row) }
+    ];
+    const allowCount = count(GH) + count(SL);
+    const dirtyCount = Object.keys({ ...grid, ...base }).filter(k => !!grid[k] !== !!base[k]).length;
+    const people = [
+      { id: 'vishwa', label: 'Vishwa Pathi (Engineer)', role: 'Engineer', grant: 'slack_post_message' },
+      { id: 'dave', label: 'dave (Engineer)', role: 'Engineer', grant: 'slack_read_messages' },
+      { id: 'carol', label: 'carol (Contractor)', role: 'Contractor' },
+      { id: 'aditya', label: 'aditya (Senior Engineer)', role: 'Senior Engineer' },
+      { id: 'anita', label: 'anita (Engineering Manager)', role: 'Engineering Manager' },
+      { id: 'arjun', label: 'arjun (Support)', role: 'Support' }
+    ];
+    const p = people.find(x => x.id === this.state.simPerson) || people[2];
+    const act = this.state.simAction;
+    let sim;
+    if (p.grant === act && grantState[p.id] !== 'revoked') sim = { ok: true, reason: grantState[p.id] === 'expiring' ? 'temporary grant, expires in 24h' : 'individual grant, no expiry' };
+    else if (grid[act + '|' + p.role]) sim = { ok: true, reason: p.role + ' has a role permit' };
+    else sim = { ok: false, reason: 'no permit or grant for ' + p.role + ', default-deny' };
+    sim.label = sim.ok ? '✓ ALLOW' : '✕ DENY';
+    sim.chipStyle = 'display: inline-flex; padding: 3px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; ' + (sim.ok ? 'background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);' : 'background: var(--noBg); color: var(--no); border: 1px solid var(--noBd);');
+    const grants = [
+      { key: 'dave', who: 'dave', tool: 'slack_read_messages', meta: 'On top of Engineer · granted 94d ago by console' },
+      { key: 'vishwa', who: 'Vishwa Pathi', tool: 'slack_post_message', meta: 'Requested from the in-chat decision card · 80d ago' }
+    ].filter(g => grantState[g.key] !== 'revoked').map(g => ({ ...g,
+      canExpire: grantState[g.key] !== 'expiring', badge: grantState[g.key] === 'expiring' ? 'expires in 24h' : 'no expiry',
+      expire: () => this.setState({ grantState: { ...grantState, [g.key]: 'expiring' } }),
+      revoke: () => this.setState({ grantState: { ...grantState, [g.key]: 'revoked' } })
+    }));
+    const noExp = grants.filter(g => g.canExpire).length;
+    return {
+      roles: ROLES, groups, allowCount, denyCount: (GH.length + SL.length) * ROLES.length - allowCount,
+      hasDirty: dirtyCount > 0, dirtyLabel: dirtyCount + (dirtyCount === 1 ? ' unsaved change' : ' unsaved changes'), saved: this.state.saved && dirtyCount === 0,
+      discard: () => this.setState({ grid: { ...base } }),
+      save: () => this.setState({ base: { ...grid }, saved: true }),
+      people: people.map(x => ({ ...x, selected: x.id === this.state.simPerson })), actionOptions: GH.concat(SL).map(id => ({ id, selected: id === act })), simPerson: this.state.simPerson, simAction: act, sim,
+      setPerson: e => this.setState({ simPerson: e.target.value }),
+      setAction: e => this.setState({ simAction: e.target.value }),
+      grants, grantNote: grants.length ? (noExp ? noExp + ' never expire' : 'all expire') : 'none open'
+    };
+  }
+}
+</script>
+</body>
+</html>

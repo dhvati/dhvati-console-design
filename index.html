@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>dhvati · Console</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&amp;family=Mukta:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>body{margin:0}a{color:inherit}button,input,select{font-family:inherit}::selection{background:rgba(168,80,27,0.22)}:focus-visible{outline:2px solid #a8501b;outline-offset:2px}</style>
+</helmet>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#efe9df"></rect><path d="M 38 53 A 12 12 0 1 1 38 61" stroke="#33241a" stroke-width="6" fill="none" stroke-linecap="round"></path><line x1="62" y1="32" x2="62" y2="68" stroke="#33241a" stroke-width="6" stroke-linecap="round"></line><circle cx="34" cy="57" r="4" fill="#a8501b"></circle></svg></template>
+<div style="{{rootVars}}">
+<div style="display: flex; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: 'Mukta', sans-serif; font-size: 15px; line-height: 1.5;">
+  <aside style="width: 248px; flex-shrink: 0; box-sizing: border-box; position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--side); border-right: 1px solid var(--line); padding: 28px 18px 20px; display: flex; flex-direction: column; gap: 24px;">
+    <a href="#dashboard" style="display: flex; align-items: center; gap: 12px; padding: 0 8px; text-decoration: none; color: var(--ink);">
+      <svg width="30" height="30" viewBox="0 0 64 64" fill="none"><path d="M 15.0 34.5 A 16 16 0 1 1 15.0 45.5" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"></path><line x1="46" y1="8" x2="46" y2="56" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"></line><circle cx="9" cy="40" r="5" fill="var(--acc)"></circle></svg>
+      <span style="display: flex; flex-direction: column; line-height: 1.1;">
+        <span style="font-family: 'Marcellus', serif; font-size: 24px;">dhvati</span>
+        <span style="font-size: 12px; color: var(--mut);">acme · Console</span>
+      </span>
+    </a>
+    <nav aria-label="Console" style="display: flex; flex-direction: column; gap: 16px;">
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="padding: 0 12px 4px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">{{g.label}}</span>
+          <sc-for list="{{g.items}}" as="n" hint-placeholder-count="3">
+            <a href="{{n.href}}" style="{{n.style}}"><span>{{n.label}}</span><sc-if value="{{n.hasCount}}" hint-placeholder-val="{{false}}"><span style="{{n.countStyle}}">{{n.count}}</span></sc-if></a>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
+      <div style="padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px;">
+        <span style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;"><span style="width: 8px; height: 8px; border-radius: 99px; background: var(--ok);"></span>Gateway healthy</span>
+        <span style="font-size: 12.5px; color: var(--mut);">ec2-gateway · Mumbai<br>heartbeat 5s · v0.7.0</span>
+      </div>
+      <button type="button" onClick="{{toggleMode}}" style="padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--ink); font-size: 13.5px; font-weight: 500; cursor: pointer; text-align: left;">{{modeLabel}}</button>
+    </div>
+  </aside>
+  <div style="flex: 1; min-width: 0;">
+    <sc-if value="{{is.dashboard}}" hint-placeholder-val="{{true}}"><dc-import name="EDashboard" hint-size="100%,1100px"></dc-import></sc-if>
+    <sc-if value="{{is.agents}}" hint-placeholder-val="{{false}}"><dc-import name="EAgents" hint-size="100%,1400px"></dc-import></sc-if>
+    <sc-if value="{{is.policies}}" hint-placeholder-val="{{false}}"><dc-import name="EPolicies" hint-size="100%,1100px"></dc-import></sc-if>
+    <sc-if value="{{is.audit}}" hint-placeholder-val="{{false}}"><dc-import name="EAudit" hint-size="100%,1100px"></dc-import></sc-if>
+    <sc-if value="{{is.integrations}}" hint-placeholder-val="{{false}}"><dc-import name="EIntegrations" hint-size="100%,1000px"></dc-import></sc-if>
+    <sc-if value="{{is.employees}}" hint-placeholder-val="{{false}}"><dc-import name="EEmployees" hint-size="100%,1000px"></dc-import></sc-if>
+    <sc-if value="{{is.gateway}}" hint-placeholder-val="{{false}}"><dc-import name="EGateway" hint-size="100%,1000px"></dc-import></sc-if>
+    <sc-if value="{{is.settings}}" hint-placeholder-val="{{false}}"><dc-import name="ESettings" hint-size="100%,1000px"></dc-import></sc-if>
+    <sc-if value="{{is.team}}" hint-placeholder-val="{{false}}"><dc-import name="ETeam" hint-size="100%,900px"></dc-import></sc-if>
+    <sc-if value="{{is.myaccess}}" hint-placeholder-val="{{false}}"><dc-import name="EMyAccess" hint-size="100%,900px"></dc-import></sc-if>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dashboard&quot;,&quot;agents&quot;,&quot;policies&quot;,&quot;audit&quot;,&quot;integrations&quot;,&quot;employees&quot;,&quot;gateway&quot;,&quot;settings&quot;,&quot;team&quot;,&quot;myaccess&quot;],&quot;default&quot;:&quot;dashboard&quot;}}">
+const SCREENS = ['dashboard','agents','policies','audit','integrations','employees','gateway','settings','team','myaccess'];
+class Component extends DCLogic {
+  state = { screen: null, mode: null };
+  componentDidMount() {
+    this.onHash = () => {
+      const h = (window.location.hash || '').slice(1);
+      if (SCREENS.includes(h)) { this.setState({ screen: h }); try { localStorage.setItem('dhvati.screen', h); } catch (e) {} window.scrollTo(0, 0); }
+    };
+    window.addEventListener('hashchange', this.onHash);
+    let s = (window.location.hash || '').slice(1);
+    if (!SCREENS.includes(s)) { try { s = localStorage.getItem('dhvati.screen'); } catch (e) {} }
+    let m = null; try { m = localStorage.getItem('dhvati.mode'); } catch (e) {}
+    this.setState({ screen: SCREENS.includes(s) ? s : 'dashboard', mode: m });
+  }
+  componentWillUnmount() { window.removeEventListener('hashchange', this.onHash); }
+  renderVals() {
+    const screen = this.state.screen ?? this.props.screen ?? 'dashboard';
+    const mode = this.state.mode ?? this.props.mode ?? 'light';
+    const P = mode === 'dark' ? {
+      bg: '#1c1612', side: '#221b16', card: '#2a221c', track: '#3a3029', line: 'rgba(240,226,206,0.08)', line2: 'rgba(240,226,206,0.16)',
+      ink: '#f0e6d8', mut: '#b9a993', acc: '#e98b4a', accFill: '#c2621f', accFillH: '#a9541a', accSoft: 'rgba(233,139,74,0.12)',
+      ok: '#9cbf6e', okBg: 'rgba(156,191,110,0.12)', okBd: 'rgba(156,191,110,0.35)',
+      warn: '#e2b24f', warnBg: 'rgba(226,178,79,0.12)', warnBd: 'rgba(226,178,79,0.35)',
+      no: '#f0806a', noBg: 'rgba(240,128,106,0.12)', noBd: 'rgba(240,128,106,0.35)',
+      glass: 'rgba(28,22,18,0.88)', shadow: '0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.25)'
+    } : {
+      bg: '#efe9df', side: '#e4ddd1', card: '#fbf8f3', track: '#ebe3d6', line: 'rgba(59,42,30,0.09)', line2: 'rgba(59,42,30,0.18)',
+      ink: '#33241a', mut: '#6e5c4c', acc: '#a8501b', accFill: '#a8501b', accFillH: '#8c4215', accSoft: 'rgba(168,80,27,0.08)',
+      ok: '#4c6b2e', okBg: 'rgba(76,107,46,0.09)', okBd: 'rgba(76,107,46,0.3)',
+      warn: '#8a6210', warnBg: 'rgba(196,140,30,0.12)', warnBd: 'rgba(138,98,16,0.3)',
+      no: '#a5301f', noBg: 'rgba(165,48,31,0.07)', noBd: 'rgba(165,48,31,0.28)',
+      glass: 'rgba(251,248,243,0.9)', shadow: '0 1px 2px rgba(80,55,30,0.06), 0 10px 30px rgba(80,55,30,0.07)'
+    };
+    const rootVars = Object.entries(P).map(([k, v]) => '--' + k + ': ' + v).join('; ') + ';';
+    const mk = (id, label, count, tone) => ({
+      label, href: '#' + id, hasCount: count != null, count,
+      style: 'display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; border-radius: 10px; font-size: 14.5px; text-decoration: none; ' + (id === screen ? 'background: var(--card); color: var(--acc); font-weight: 600; box-shadow: var(--shadow);' : 'color: var(--ink); font-weight: 500;'),
+      countStyle: 'font-size: 12px; font-weight: 600; padding: 0 8px; border-radius: 99px; line-height: 20px; ' + (tone === 'warn' ? 'background: var(--warnBg); color: var(--warn);' : 'background: var(--track); color: var(--mut);')
+    });
+    const groups = [
+      { label: 'Overview', items: [mk('dashboard', 'Dashboard')] },
+      { label: 'Govern', items: [mk('policies', 'Roles & Policies', 2, 'warn'), mk('integrations', 'Integrations'), mk('audit', 'Audit')] },
+      { label: 'Identity', items: [mk('agents', 'Agents', 3, 'warn'), mk('employees', 'Employees', 29), mk('team', 'Team'), mk('settings', 'Settings')] },
+      { label: 'Infrastructure', items: [mk('gateway', 'Gateway')] },
+      { label: 'Self-service', items: [mk('myaccess', 'My access')] }
+    ];
+    const is = {}; SCREENS.forEach(s => { is[s] = s === screen; });
+    return {
+      rootVars, groups, is,
+      modeLabel: mode === 'dark' ? 'Switch to light' : 'Switch to dark',
+      toggleMode: () => { const m = mode === 'dark' ? 'light' : 'dark'; try { localStorage.setItem('dhvati.mode', m); } catch (e) {} this.setState({ mode: m }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

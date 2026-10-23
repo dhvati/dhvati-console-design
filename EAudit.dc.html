@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<main style="box-sizing: border-box; padding: 40px 48px 56px; display: flex; flex-direction: column; gap: 22px; min-width: 0;">
+  <header style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--acc);"><span style="width: 24px; height: 1px; background: var(--acc);"></span>Govern · Evidence</span>
+      <h1 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 42px; line-height: 1.1;">Audit</h1>
+      <p style="margin: 0; max-width: 640px; font-size: 15.5px; color: var(--mut); text-wrap: pretty;">Every call an agent made, the decision, the reason, and the person who answers for it. Recorded where it was decided.</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+      <div role="group" aria-label="Time range" style="display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--side); border: 1px solid var(--line);">
+        <sc-for list="{{ranges}}" as="r" hint-placeholder-count="4"><button type="button" onClick="{{r.pick}}" style="{{r.style}}">{{r.label}}</button></sc-for>
+      </div>
+      <button type="button" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;" style-hover="border-color: var(--mut);">Export evidence</button>
+    </div>
+  </header>
+
+  <section aria-label="Totals" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); border: 1px solid var(--line2); border-radius: 18px; overflow: hidden; background: var(--card); box-shadow: var(--shadow);">
+    <sc-for list="{{totals}}" as="t" hint-placeholder-count="6">
+      <div style="padding: 16px 20px; display: flex; flex-direction: column; border-right: 1px solid var(--line);">
+        <span style="{{t.style}}">{{t.value}}</span>
+        <span style="font-size: 13px; color: var(--mut);">{{t.label}}</span>
+      </div>
+    </sc-for>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+    <sc-for list="{{decisionFilters}}" as="f" hint-placeholder-count="5"><button type="button" onClick="{{f.pick}}" style="{{f.style}}">{{f.label}}</button></sc-for>
+    <span style="flex-grow: 1;"></span>
+    <input aria-label="Search the audit log" value="{{query}}" onInput="{{setQuery}}" placeholder="Agent, person, or action…" style="width: 260px; box-sizing: border-box; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; outline: none;" style-focus="border-color: var(--acc); box-shadow: 0 0 0 3px var(--accSoft);">
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+    <section aria-label="Decisions" style="flex: 3 1 560px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden;">
+      <div style="overflow-x: auto;"><div style="min-width: 660px;">
+        <div style="display: grid; grid-template-columns: 80px 130px 90px minmax(0, 1fr) 60px 90px; gap: 12px; padding: 12px 20px; background: var(--side); font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mut);">
+          <span>Last seen</span><span>Agent</span><span>Answers to</span><span>Action</span><span style="text-align: right;">Calls</span><span>Decision</span>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+          <div role="button" tabindex="0" onClick="{{r.pick}}" style="{{r.rowStyle}}">
+            <span style="color: var(--mut);">{{r.when}}</span>
+            <span style="font-weight: 600;">{{r.agent}}</span>
+            <span style="color: var(--mut);">{{r.owner}}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">{{r.action}}</span>
+            <span style="text-align: right; font-variant-numeric: tabular-nums;">{{r.calls}}</span>
+            <span><span style="padding: 2px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; background: var(--okBg); color: var(--ok); border: 1px solid var(--okBd);">ALLOW</span></span>
+          </div>
+        </sc-for>
+        <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+          <div style="padding: 40px 20px; border-top: 1px solid var(--line); font-size: 14.5px; color: var(--mut);">{{emptyText}}</div>
+        </sc-if>
+      </div></div>
+      <div style="padding: 12px 20px; border-top: 1px solid var(--line2); font-size: 13px; color: var(--mut);">Identical calls are grouped. Open a group to see each call.</div>
+    </section>
+
+    <aside aria-label="Why this decision" style="flex: 2 1 340px; min-width: 0; position: sticky; top: 24px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); display: flex; flex-direction: column;">
+      <div style="padding: 20px 22px 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ok);">Why it was allowed</span>
+        <h2 style="margin: 0; font-family: 'Marcellus', serif; font-weight: 400; font-size: 24px; line-height: 1.25;">{{sel.agent}} → <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px;">{{sel.action}}</span></h2>
+        <span style="font-size: 13.5px; color: var(--mut); font-variant-numeric: tabular-nums;">{{sel.calls}} calls · last {{sel.when}}</span>
+      </div>
+      <div style="padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid var(--line);">
+        <div style="display: flex; gap: 12px;"><span style="color: var(--ok); font-weight: 700;">✓</span><span style="display: flex; flex-direction: column; font-size: 14px;"><b style="font-weight: 600;">The agent is allowed</b><span style="color: var(--mut);">{{sel.agent}} is approved and scoped for <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">{{sel.action}}</span></span></span></div>
+        <div style="display: flex; gap: 12px;"><span style="color: var(--ok); font-weight: 700;">✓</span><span style="display: flex; flex-direction: column; font-size: 14px;"><b style="font-weight: 600;">No person to check</b><span style="color: var(--mut);">It acts on its own identity. No employee's access was borrowed.</span></span></div>
+        <div style="display: flex; gap: 12px;"><span style="color: var(--ok); font-weight: 700;">✓</span><span style="display: flex; flex-direction: column; font-size: 14px;"><b style="font-weight: 600;">Credential injected, never shown</b><span style="color: var(--mut);">The {{sel.cred}} stayed in the vault. The agent never saw it.</span></span></div>
+      </div>
+      <div style="padding: 16px 22px; display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px 12px; font-size: 14px; border-bottom: 1px solid var(--line);">
+        <span style="color: var(--mut);">Answers to</span><span>{{sel.owner}}@dhi.com</span>
+        <span style="color: var(--mut);">Decided by</span><span>ec2-gateway · v0.7.0</span>
+        <span style="color: var(--mut);">Decided in</span><span>India · Mumbai <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--mut);">ap-south-1</span></span>
+        <span style="color: var(--mut);">Policy</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px;">agent scope · AND-gate</span>
+      </div>
+      <div style="padding: 16px 22px 20px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="#agents" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none;" style-hover="border-color: var(--mut);">Open agent</a>
+        <button type="button" onClick="{{copy}}" style="padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line2); background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer;" style-hover="border-color: var(--mut);">{{copyLabel}}</button>
+      </div>
+    </aside>
+  </div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { range: '24h', decision: 'all', selected: 'harvester', query: '', copied: false };
+  renderVals() {
+    const data = [
+      ['4h ago', 'harvester', 'vishwa', 'slack_post_message', 823], ['4h ago', 'qualifier', 'vishwa', 'slack_post_message', 211],
+      ['6h ago', 'investor', 'vishwa', 'slack_post_message', 208], ['7h ago', 'digest', 'vishwa', 'slack_post_message', 204],
+      ['8h ago', 'roadmap', 'vishwa', 'llm_complete', 156], ['8h ago', 'enricher', 'vishwa', 'llm_complete', 154],
+      ['9h ago', 'jobs-digest', 'vishwa', 'slack_post_message', 104], ['9h ago', 'drafter', 'vishwa', 'llm_complete', 52],
+      ['10h ago', 'analyst', 'vishwa', 'llm_complete', 52], ['9h ago', 'jobs-screener', 'vishwa', 'llm_complete', 34]
+    ];
+    const { selected: sel, decision, query } = this.state;
+    const q = query.trim().toLowerCase();
+    const all = data.map(([when, agent, owner, action, calls]) => ({
+      when, agent, owner, action, calls,
+      cred: action.indexOf('slack') === 0 ? 'Slack token' : 'Anthropic API key',
+      pick: () => this.setState({ selected: agent, copied: false }),
+      rowStyle: 'display: grid; grid-template-columns: 80px 130px 90px minmax(0, 1fr) 60px 90px; gap: 12px; align-items: center; padding: 12px 20px; cursor: pointer; font-size: 14px; border-top: 1px solid var(--line); ' + (agent === sel ? 'background: var(--accSoft); box-shadow: inset 3px 0 0 var(--acc);' : '')
+    }));
+    const rows = all.filter(r => (decision === 'all' || decision === 'allow') && (!q || (r.agent + ' ' + r.owner + ' ' + r.action).toLowerCase().includes(q)));
+    const pill = on => 'padding: 5px 14px; border-radius: 999px; border: 0; cursor: pointer; font-size: 13.5px; font-weight: 600; ' + (on ? 'background: var(--card); color: var(--ink); box-shadow: var(--shadow);' : 'background: transparent; color: var(--mut);');
+    const ranges = ['1h', '24h', '7d', '30d'].map(r => ({ label: r, pick: () => this.setState({ range: r }), style: pill(r === this.state.range) }));
+    const chip = on => 'padding: 6px 14px; border-radius: 999px; cursor: pointer; font-size: 13.5px; font-weight: 600; ' + (on ? 'background: var(--accSoft); color: var(--acc); border: 1px solid var(--acc);' : 'background: var(--card); color: var(--mut); border: 1px solid var(--line2);');
+    const decisionFilters = [['all', 'All decisions'], ['allow', 'Allowed 2.0k'], ['deny', 'Denied 0'], ['modify', 'Redacted 0'], ['block', 'Blocked 0']].map(([id, label]) => ({ label, pick: () => this.setState({ decision: id }), style: chip(id === decision) }));
+    const num = c => 'font-family: "Marcellus", serif; font-size: 30px; line-height: 1.15; font-variant-numeric: tabular-nums; color: ' + c + ';';
+    const totals = [
+      { value: '2.0k', label: 'governed calls · ' + this.state.range, style: num('var(--ink)') }, { value: '2.0k', label: 'allowed', style: num('var(--ok)') },
+      { value: '0', label: 'denied', style: num('var(--ink)') }, { value: '0', label: 'redacted', style: num('var(--ink)') },
+      { value: '0', label: 'blocked', style: num('var(--ink)') }, { value: '100%', label: 'traced to a named owner', style: num('var(--ink)') }
+    ];
+    const emptyText = decision === 'all' || decision === 'allow' ? 'Nothing matches "' + query + '".' : 'No ' + ({ deny: 'denied', modify: 'redacted', block: 'blocked' })[decision] + ' calls in this range. Every call was allowed by policy.';
+    return {
+      rows, ranges, decisionFilters, totals, query, empty: rows.length === 0, emptyText,
+      setQuery: e => this.setState({ query: e.target.value }),
+      sel: all.find(r => r.agent === sel) || all[0],
+      copyLabel: this.state.copied ? 'Link copied' : 'Copy evidence link',
+      copy: () => this.setState({ copied: true })
+    };
+  }
+}
+</script>
+</body>
+</html>
